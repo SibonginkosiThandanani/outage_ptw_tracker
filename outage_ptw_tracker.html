@@ -527,13 +527,13 @@ textarea{resize:vertical;min-height:52px}
     <div><label class="fl">KKS</label><input type="text" id="pm-kks" placeholder="KKS code"></div>
     <div>
       <label class="fl">System</label>
-      <select class="form-inp" id="pm-system"><option value="">— Select System —</option><option value="Abstraction">Abstraction</option><option value="Filtration">Filtration</option><option value="Reservoir">Reservoir</option><option value="WTP">WTP</option><option value="WWTP">WWTP</option><option value="BFW">BFW</option><option value="CW">CW</option><option value="Instrument Air">Instrument Air</option><option value="SSG">SSG</option><option value="Steam">Steam</option><option value="Turbogenerator">Turbogenerator</option><option value="Solar field">Solar field</option><option value="HTF circuit">HTF circuit</option><option value="Expansion">Expansion</option><option value="TES">TES</option><option value="Fire System">Fire System</option><option value="Electrical building">Electrical building</option><option value="DCS">DCS</option><option value="Cooling water">Cooling water</option><option value="Ullage">Ullage</option><option value="ACC">ACC</option></select>
+      <input class="form-inp" id="pm-system" list="dl-sys" autocomplete="off" placeholder="— System —" style="width:100%">
       <input type="hidden" id="pm-system-hidden" list="dl-system" placeholder="Select or type...">
     </div>
     <div class="full"><label class="fl">Scope of Work</label><textarea id="pm-scope" placeholder="Describe scope of work"></textarea></div>
     <div>
       <label class="fl">Discipline / Contractor</label>
-      <select class="form-inp" id="pm-discipline"><option value="">— Select Discipline/Contractor —</option><option value="Mechanical">Mechanical</option><option value="C&I">C&I</option><option value="Electrical">Electrical</option><option value="BTS">BTS</option><option value="Vac-Cent">Vac-Cent</option><option value="April Konstruksie">April Konstruksie</option><option value="Applus">Applus</option><option value="Auma">Auma</option><option value="Vega">Vega</option><option value="Enserve">Enserve</option><option value="Fire Equip">Fire Equip</option><option value="BI Engineering">BI Engineering</option><option value="HT Rams">HT Rams</option><option value="Environmental">Environmental</option><option value="Solar field">Solar field</option><option value="Baymont">Baymont</option><option value="Hypower">Hypower</option><option value="Pezula">Pezula</option></select>
+      <input class="form-inp" id="pm-discipline" list="dl-disc" autocomplete="off" placeholder="— Discipline/Contractor —" style="width:100%">
     </div>
     <div><label class="fl">PTW Number</label><input type="text" id="pm-ptw" placeholder="PTW number"></div>
     <div><label class="fl">LOB Number</label><input type="text" id="pm-lob" placeholder="LOB number"></div>
@@ -542,11 +542,11 @@ textarea{resize:vertical;min-height:52px}
     <div><label class="fl">AP Key Number</label><input type="text" id="pm-ap-key" placeholder="AP Key Number"></div>
     <div>
       <label class="fl">AP</label>
-      <select class="form-inp" id="pm-ap"><option value="">— Select AP —</option><option value="Siphiwe Radebe">Siphiwe Radebe</option><option value="Jabulani Nkosi">Jabulani Nkosi</option><option value="Ronaldo Matthys">Ronaldo Matthys</option><option value="Marcio Vries">Marcio Vries</option><option value="Keatlaretse Mokgoatlheng">Keatlaretse Mokgoatlheng</option><option value="Wilmour Vanwyk">Wilmour Vanwyk</option><option value="Sikhumbuzo Banda">Sikhumbuzo Banda</option><option value="Ntesang Kgarebe">Ntesang Kgarebe</option><option value="Herman Steyn">Herman Steyn</option><option value="Silvonia Swartz">Silvonia Swartz</option><option value="Willy Ntoesane">Willy Ntoesane</option><option value="Ronald Cloete">Ronald Cloete</option><option value="Louise Vankopman">Louise Vankopman</option></select>
+      <input class="form-inp" id="pm-ap" list="dl-ap" autocomplete="off" placeholder="— AP —" style="width:100%">
     </div>
     <div>
       <label class="fl">RP</label>
-      <select class="form-inp" id="pm-rp"><option value="">— Select RP —</option><option value="Willy Ntsoane">Willy Ntsoane</option><option value="Adim Pienaar">Adim Pienaar</option><option value="Precious Maseko">Precious Maseko</option><option value="Nozipho Mgabi">Nozipho Mgabi</option><option value="Thobisi Mtambo">Thobisi Mtambo</option><option value="Janiel Classen">Janiel Classen</option><option value="Mthobisi Mtambo">Mthobisi Mtambo</option><option value="Ronald Cloete">Ronald Cloete</option><option value="Desiree Chiloane">Desiree Chiloane</option><option value="Antony Tembo">Antony Tembo</option><option value="Edwin Simon">Edwin Simon</option><option value="Ntesang Kgarebe">Ntesang Kgarebe</option><option value="Herman Steyn">Herman Steyn</option><option value="Louise Vankopman">Louise Vankopman</option><option value="Silvonia Swartz">Silvonia Swartz</option></select>
+      <input class="form-inp" id="pm-rp" list="dl-rp" autocomplete="off" placeholder="— RP —" style="width:100%">
     </div>
 
     <div class="sec-title">Hazard Flags &amp; Quantities</div>
@@ -636,16 +636,16 @@ textarea{resize:vertical;min-height:52px}
     <div><label class="fl">Time</label><input type="time" id="ep-time"></div>
     <div class="full"><label class="fl">Equipment Description</label><input type="text" id="ep-equip"></div>
     <div><label class="fl">KKS</label><input type="text" id="ep-kks"></div>
-    <div><label class="fl">System</label><select class="form-inp" id="ep-system"><option value="">— Select System —</option><option value="Abstraction">Abstraction</option><option value="Filtration">Filtration</option><option value="Reservoir">Reservoir</option><option value="WTP">WTP</option><option value="WWTP">WWTP</option><option value="BFW">BFW</option><option value="CW">CW</option><option value="Instrument Air">Instrument Air</option><option value="SSG">SSG</option><option value="Steam">Steam</option><option value="Turbogenerator">Turbogenerator</option><option value="Solar field">Solar field</option><option value="HTF circuit">HTF circuit</option><option value="Expansion">Expansion</option><option value="TES">TES</option><option value="Fire System">Fire System</option><option value="Electrical building">Electrical building</option><option value="DCS">DCS</option><option value="Cooling water">Cooling water</option><option value="Ullage">Ullage</option><option value="ACC">ACC</option></select></div>
+    <div><label class="fl">System</label><input class="form-inp" id="ep-system" list="dl-sys" autocomplete="off" placeholder="— System —" style="width:100%"></div>
     <div class="full"><label class="fl">Scope of Work</label><textarea id="ep-scope"></textarea></div>
-    <div><label class="fl">Discipline / Contractor</label><select class="form-inp" id="ep-discipline"><option value="">— Select Discipline/Contractor —</option><option value="Mechanical">Mechanical</option><option value="C&I">C&I</option><option value="Electrical">Electrical</option><option value="BTS">BTS</option><option value="Vac-Cent">Vac-Cent</option><option value="April Konstruksie">April Konstruksie</option><option value="Applus">Applus</option><option value="Auma">Auma</option><option value="Vega">Vega</option><option value="Enserve">Enserve</option><option value="Fire Equip">Fire Equip</option><option value="BI Engineering">BI Engineering</option><option value="HT Rams">HT Rams</option><option value="Environmental">Environmental</option><option value="Solar field">Solar field</option><option value="Baymont">Baymont</option><option value="Hypower">Hypower</option><option value="Pezula">Pezula</option></select></div>
+    <div><label class="fl">Discipline / Contractor</label><input class="form-inp" id="ep-discipline" list="dl-disc" autocomplete="off" placeholder="— Discipline/Contractor —" style="width:100%"></div>
     <div><label class="fl">PTW Number</label><input type="text" id="ep-ptw"></div>
     <div><label class="fl">LOB Number</label><input type="text" id="ep-lob"></div>
     <div><label class="fl">Cross Ref</label><input type="text" id="ep-crossref"></div>
     <div><label class="fl">RP Key Number</label><input type="text" id="ep-rp-key"></div>
     <div><label class="fl">AP Key Number</label><input type="text" id="ep-ap-key"></div>
-    <div><label class="fl">AP</label><select class="form-inp" id="ep-ap"><option value="">— Select AP —</option><option value="Siphiwe Radebe">Siphiwe Radebe</option><option value="Jabulani Nkosi">Jabulani Nkosi</option><option value="Ronaldo Matthys">Ronaldo Matthys</option><option value="Marcio Vries">Marcio Vries</option><option value="Keatlaretse Mokgoatlheng">Keatlaretse Mokgoatlheng</option><option value="Wilmour Vanwyk">Wilmour Vanwyk</option><option value="Sikhumbuzo Banda">Sikhumbuzo Banda</option><option value="Ntesang Kgarebe">Ntesang Kgarebe</option><option value="Herman Steyn">Herman Steyn</option><option value="Silvonia Swartz">Silvonia Swartz</option><option value="Willy Ntoesane">Willy Ntoesane</option><option value="Ronald Cloete">Ronald Cloete</option><option value="Louise Vankopman">Louise Vankopman</option></select></div>
-    <div><label class="fl">RP</label><select class="form-inp" id="ep-rp"><option value="">— Select RP —</option><option value="Willy Ntsoane">Willy Ntsoane</option><option value="Adim Pienaar">Adim Pienaar</option><option value="Precious Maseko">Precious Maseko</option><option value="Nozipho Mgabi">Nozipho Mgabi</option><option value="Thobisi Mtambo">Thobisi Mtambo</option><option value="Janiel Classen">Janiel Classen</option><option value="Mthobisi Mtambo">Mthobisi Mtambo</option><option value="Ronald Cloete">Ronald Cloete</option><option value="Desiree Chiloane">Desiree Chiloane</option><option value="Antony Tembo">Antony Tembo</option><option value="Edwin Simon">Edwin Simon</option><option value="Ntesang Kgarebe">Ntesang Kgarebe</option><option value="Herman Steyn">Herman Steyn</option><option value="Louise Vankopman">Louise Vankopman</option><option value="Silvonia Swartz">Silvonia Swartz</option></select></div>
+    <div><label class="fl">AP</label><input class="form-inp" id="ep-ap" list="dl-ap" autocomplete="off" placeholder="— AP —" style="width:100%"></div>
+    <div><label class="fl">RP</label><input class="form-inp" id="ep-rp" list="dl-rp" autocomplete="off" placeholder="— RP —" style="width:100%"></div>
     <div class="sec-title">Hazard Flags &amp; Quantities</div>
     <div class="full"><div class="haz-grid">
       <div class="haz-row"><label class="haz-label" onclick="toggleHazEdit('hotwork')"><input type="checkbox" id="ep-hotwork"> 🔥 Hotwork</label><input type="number" id="ep-hotwork-num" class="haz-num" min="1" placeholder="#"></div>
@@ -744,6 +744,10 @@ textarea{resize:vertical;min-height:52px}
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <button onclick="openPermitListModal('all')" style="padding:5px 12px;border:1px solid rgba(255,255,255,.6);border-radius:14px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;cursor:pointer">📋 All Permits</button>
+      <button onclick="openPermitListModal('open')" style="padding:5px 12px;border:1px solid #4caf8a;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer">🟢 Open</button>
+      <button onclick="openPermitListModal('suspended')" style="padding:5px 12px;border:1px solid #f0b429;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer">🟡 Suspended</button>
+      <button onclick="openPermitListModal('closed')" style="padding:5px 12px;border:1px solid #aab8c2;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer">⚫ Closed</button>
+      <button onclick="printAll()" style="padding:5px 12px;border:1px solid rgba(255,140,0,.8);border-radius:14px;background:rgba(180,60,0,.6);color:#fff;font-size:11px;font-weight:700;cursor:pointer" title="Export to PDF">🖨 PDF</button>
       <button onclick="printAll()" style="padding:5px 12px;border:1px solid rgba(255,140,0,.8);border-radius:14px;background:rgba(180,60,0,.6);color:#fff;font-size:11px;font-weight:700;cursor:pointer" title="Export to PDF">🖨 PDF</button>
       <button class="action-nav-btn" onclick="navigateTo('action')">📋 Action Plan</button>
       <button class="action-nav-btn" onclick="navigateTo('home')">🏠</button>
@@ -2601,6 +2605,102 @@ function openPermitListByTaskStatus(mid, status) {
   _showPermitModal("📋 Permits — "+label+" / "+status.charAt(0).toUpperCase()+status.slice(1), _buildPermitRows(filtered));
 }
 
+
+function filterPermitListSearch(query) {
+  const inp = document.getElementById('permit-search-input');
+  if (inp && inp.value !== query) inp.value = query;
+
+  const sugBox = document.getElementById('permit-search-suggestions');
+  const body   = document.getElementById('permit-list-body');
+  const q = query.trim().toLowerCase();
+
+  // Build suggestions when typing (before Enter / selection)
+  if (q.length > 0) {
+    const matches = permits.filter(p =>
+      String(p.id||'').toLowerCase().includes(q) ||
+      (p.equip||'').toLowerCase().includes(q) ||
+      (p.kks||'').toLowerCase().includes(q)
+    );
+    // Collect unique suggestion tokens
+    const seen = new Set();
+    const sugs = [];
+    matches.forEach(p => {
+      [[p.id,'#'], [p.equip,'Equip'], [p.kks,'KKS']].forEach(([val,type]) => {
+        const v = String(val||'').trim();
+        if (v && v.toLowerCase().includes(q) && !seen.has(v)) {
+          seen.add(v);
+          sugs.push({val:v, type});
+        }
+      });
+    });
+    if (sugs.length && sugs.length < 12) {
+      sugBox.innerHTML = sugs.map(s =>
+        `<div onclick="filterPermitListSearch(${JSON.stringify(s.val)})" style="padding:6px 12px;cursor:pointer;font-size:11px;display:flex;gap:8px;align-items:center;border-bottom:1px solid #f0f2f8" onmouseover="this.style.background='#edf2ff'" onmouseout="this.style.background=''">
+          <span style="background:#e8edf8;color:#1e3a5f;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;flex-shrink:0">${s.type}</span>
+          <span>${s.val}</span>
+        </div>`
+      ).join('');
+      sugBox.style.display = 'block';
+    } else {
+      sugBox.style.display = 'none';
+    }
+  } else {
+    sugBox.style.display = 'none';
+  }
+
+  // Filter table rows
+  if (!body) return;
+  if (!q) {
+    // Show all (re-render current modal state)
+    openPermitListModal('all');
+    return;
+  }
+  const filtered = permits.filter(p =>
+    String(p.id||'').toLowerCase().includes(q) ||
+    (p.equip||'').toLowerCase().includes(q) ||
+    (p.kks||'').toLowerCase().includes(q)
+  );
+  const fmtHaz = (flag, num) => flag ? (num > 1 ? "Yes (x"+num+")" : "Yes") : "";
+  if (!filtered.length) {
+    body.innerHTML = '<tr><td colspan="23" class="empty">No permits match &quot;'+query+'&quot;.</td></tr>';
+    return;
+  }
+  body.innerHTML = filtered.map((p,i) => {
+    const rowBg = i%2===0?"":"background:#f5f7ff";
+    const vc = violations.filter(v=>String(v.permitId)===String(p.id)).length;
+    const vcBadge = vc>0
+      ? "<span style='background:#c62828;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-right:5px'>"+vc+"</span>"
+      : "<span style='color:#bbb;font-size:10px;margin-right:5px'>0</span>";
+    const sColor = (p.status||"").toLowerCase()==="open"?"#2d6a4f":(p.status||"").toLowerCase()==="suspended"?"#b07b1e":"#6b7d8a";
+    // Highlight matching text
+    function hl(str) {
+      if (!str) return "";
+      const rx = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+      return String(str).replace(rx,'<mark style="background:#fff3a3;border-radius:2px;padding:0 1px">$1</mark>');
+    }
+    return "<tr style='"+rowBg+"'>"
+      +"<td style='font-weight:700;color:#1e3a5f;white-space:nowrap'>"+hl(p.id)+"</td>"
+      +"<td>"+(p.date||"")+"</td><td>"+(p.time||"")+"</td>"
+      +"<td>"+hl(p.equip||"")+"</td><td>"+hl(p.kks||"")+"</td><td>"+(p.system||"")+"</td>"
+      +"<td style='min-width:220px'>"+(p.scope||"")+"</td>"
+      +"<td>"+(p.discipline||"")+"</td><td>"+(p.ptw||"")+"</td><td>"+(p.lob||"")+"</td>"
+      +"<td>"+(p.crossref||"")+"</td><td>"+(p.rpKey||"")+"</td><td>"+(p.apKey||"")+"</td>"
+      +"<td>"+(p.ap||"")+"</td><td>"+(p.rp||"")+"</td>"
+      +"<td>"+fmtHaz(p.hotwork,p.hotworkNum)+"</td><td>"+fmtHaz(p.lifting,p.liftingNum)+"</td>"
+      +"<td>"+fmtHaz(p.confined,p.confinedNum)+"</td><td>"+fmtHaz(p.hvoltage,p.hvoltageNum)+"</td>"
+      +"<td>"+(p.dateClosed||"")+"</td><td>"+(p.apClosing||"")+"</td>"
+      +"<td><span style='background:"+sColor+";color:#fff;border-radius:10px;padding:2px 9px;font-size:10px;font-weight:700'>"+(p.status||"")+"</span></td>"
+      +"<td style='white-space:nowrap;min-width:110px'>"+vcBadge
+      +"<button onclick='event.stopPropagation();openViolationModal("+JSON.stringify(String(p.id))+")' style='background:#c62828;color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer'>+&#x26A0;&#xFE0F;</button></td>"
+      +"</tr>";
+  }).join('');
+}
+// Close suggestions when clicking outside
+document.addEventListener('click', e => {
+  const sb = document.getElementById('permit-search-suggestions');
+  if (sb && !sb.contains(e.target) && e.target.id !== 'permit-search-input') sb.style.display = 'none';
+});
+
 function openPermitListByDisc(disc) {
   const body = document.getElementById("permit-list-body");
   const titleEl = document.querySelector("#modal-permit-list h2");
@@ -2635,6 +2735,9 @@ function openPermitListByDisc(disc) {
         +"</tr>";
     }).join("");
   }
+  // Clear search on fresh open
+  const _si=document.getElementById("permit-search-input"); if(_si) _si.value="";
+  const _sb=document.getElementById("permit-search-suggestions"); if(_sb) _sb.style.display="none";
   show("modal-permit-list");
 }
 
@@ -2738,7 +2841,7 @@ function printAll() {
   const todayFull = new Date().toLocaleDateString("en-GB",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
 
   // ══ PAGE 1: Home cover ══
-  const homeHtml = `<div class="pdf-section" style="page-break-after:always">
+  const homeHtml = `<div class="pdf-section">
     <div style="min-height:92vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px">
       <div style="font-size:26px;font-weight:900;letter-spacing:2px;color:#1e3a5f;margin-bottom:10px">Permit To Work Tracker - 2026 Maintenance Outage</div>
       <div style="font-size:14px;color:#666;letter-spacing:2px;margin-bottom:8px">XINA SOLAR ONE · OPERATIONS &amp; MAINTENANCE</div>
@@ -2947,7 +3050,7 @@ function printAll() {
       +'</table></div>'
     : '';
 
-  printArea.innerHTML = homeHtml + ptwHtml + permitListHtml;
+  printArea.innerHTML = ptwHtml + permitListHtml;
 
   setTimeout(() => {
     window.print();
@@ -3777,6 +3880,17 @@ spInit();
     <button class="plf-btn" data-filter="closed" onclick="openPermitListModal('closed')" style="padding:5px 14px;border:1px solid #6b7d8a;border-radius:14px;background:#edf2ff;color:#1e3a5f;font-size:11px;font-weight:700;cursor:pointer">Closed</button>
   </div>
 </div>
+  <div style="padding:8px 0 6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="position:relative;flex:1;min-width:220px;max-width:400px">
+      <input id="permit-search-input" type="text" autocomplete="off"
+        placeholder="Search by permit no., equipment or KKS…"
+        oninput="filterPermitListSearch(this.value)"
+        style="width:100%;padding:7px 34px 7px 10px;border:1.5px solid #c5d0f0;border-radius:8px;font-size:12px;font-family:inherit;color:#1e3a5f;outline:none;box-sizing:border-box">
+      <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#888;font-size:13px;pointer-events:none">🔍</span>
+      <div id="permit-search-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #c5d0f0;border-top:none;border-radius:0 0 8px 8px;z-index:50;max-height:180px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)"></div>
+    </div>
+    <button onclick="filterPermitListSearch('')" style="padding:6px 12px;border:1px solid #c5d0f0;border-radius:8px;background:#f5f7ff;color:#1e3a5f;font-size:11px;font-weight:700;cursor:pointer">✕ Clear</button>
+  </div>
   <div class="permit-list-wrap">
     <table class="permit-list-table" id="permit-list-tbl">
       <thead><tr>
@@ -3871,5 +3985,82 @@ spInit();
 </div>
 <div id="pdf-print-area"></div>
 
+
+<!-- ── Datalists for combo fields ── -->
+<datalist id="dl-sys">
+  <option value="Abstraction">
+  <option value="Filtration">
+  <option value="Reservoir">
+  <option value="WTP">
+  <option value="WWTP">
+  <option value="BFW">
+  <option value="CW">
+  <option value="Instrument Air">
+  <option value="SSG">
+  <option value="Steam">
+  <option value="Turbogenerator">
+  <option value="Solar field">
+  <option value="HTF circuit">
+  <option value="Expansion">
+  <option value="TES">
+  <option value="Fire System">
+  <option value="Electrical building">
+  <option value="DCS">
+  <option value="Cooling water">
+  <option value="Ullage">
+  <option value="ACC">
+</datalist>
+<datalist id="dl-disc">
+  <option value="Mechanical">
+  <option value="C&I">
+  <option value="Electrical">
+  <option value="BTS">
+  <option value="Vac-Cent">
+  <option value="April Konstruksie">
+  <option value="Applus">
+  <option value="Auma">
+  <option value="Vega">
+  <option value="Enserve">
+  <option value="Fire Equip">
+  <option value="BI Engineering">
+  <option value="HT Rams">
+  <option value="Environmental">
+  <option value="Solar field">
+  <option value="Baymont">
+  <option value="Hypower">
+  <option value="Pezula">
+</datalist>
+<datalist id="dl-ap">
+  <option value="Siphiwe Radebe">
+  <option value="Jabulani Nkosi">
+  <option value="Ronaldo Matthys">
+  <option value="Marcio Vries">
+  <option value="Keatlaretse Mokgoatlheng">
+  <option value="Wilmour Vanwyk">
+  <option value="Sikhumbuzo Banda">
+  <option value="Ntesang Kgarebe">
+  <option value="Herman Steyn">
+  <option value="Silvonia Swartz">
+  <option value="Willy Ntoesane">
+  <option value="Ronald Cloete">
+  <option value="Louise Vankopman">
+</datalist>
+<datalist id="dl-rp">
+  <option value="Willy Ntsoane">
+  <option value="Adim Pienaar">
+  <option value="Precious Maseko">
+  <option value="Nozipho Mgabi">
+  <option value="Thobisi Mtambo">
+  <option value="Janiel Classen">
+  <option value="Mthobisi Mtambo">
+  <option value="Ronald Cloete">
+  <option value="Desiree Chiloane">
+  <option value="Antony Tembo">
+  <option value="Edwin Simon">
+  <option value="Ntesang Kgarebe">
+  <option value="Herman Steyn">
+  <option value="Louise Vankopman">
+  <option value="Silvonia Swartz">
+</datalist>
 </body>
 </html>
