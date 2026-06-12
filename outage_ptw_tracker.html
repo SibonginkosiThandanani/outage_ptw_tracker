@@ -398,8 +398,17 @@ textarea{resize:vertical;min-height:52px}
 
 <!-- ═══ TABLE ═══ -->
 <div class="container">
-  <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
-    <button id="btn-dates-toggle" onclick="toggleAllDates()" style="background:#1e3a5f;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:600">📅 Show Dates</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px">
+    <div id="main-task-search-wrap" style="position:relative;flex:0 0 340px">
+      <input id="main-task-search" type="text" autocomplete="off"
+        placeholder="🔍 Search main task…"
+        oninput="filterMainTaskSearch(this.value)"
+        onfocus="filterMainTaskSearch(this.value)"
+        style="width:100%;padding:5px 28px 5px 10px;border:1px solid #3a5f9a;background:#0d1b2e;color:#fff;border-radius:5px;font-size:12px;box-sizing:border-box;outline:none">
+      <button onclick="clearMainTaskSearch()" title="Clear" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:13px;cursor:pointer;padding:0;line-height:1">✕</button>
+      <div id="main-task-suggestions" style="display:none;position:absolute;top:calc(100% + 3px);left:0;width:100%;background:#0d1b2e;border:1px solid #3a5f9a;border-radius:5px;z-index:9999;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.5)"></div>
+    </div>
+    <button id="btn-dates-toggle" onclick="toggleAllDates()" style="background:#1e3a5f;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap">📅 Show Dates</button>
   </div>
   <table id="tbl">
     <thead><tr>
@@ -744,10 +753,6 @@ textarea{resize:vertical;min-height:52px}
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <button onclick="openPermitListModal('all')" style="padding:5px 12px;border:1px solid rgba(255,255,255,.6);border-radius:14px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;cursor:pointer">📋 All Permits</button>
-      <button onclick="openPermitListModal('open')" style="padding:5px 12px;border:1px solid #4caf8a;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer">🟢 Open</button>
-      <button onclick="openPermitListModal('suspended')" style="padding:5px 12px;border:1px solid #f0b429;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer">🟡 Suspended</button>
-      <button onclick="openPermitListModal('closed')" style="padding:5px 12px;border:1px solid #aab8c2;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer">⚫ Closed</button>
-      <button onclick="printAll()" style="padding:5px 12px;border:1px solid rgba(255,140,0,.8);border-radius:14px;background:rgba(180,60,0,.6);color:#fff;font-size:11px;font-weight:700;cursor:pointer" title="Export to PDF">🖨 PDF</button>
       <button onclick="printAll()" style="padding:5px 12px;border:1px solid rgba(255,140,0,.8);border-radius:14px;background:rgba(180,60,0,.6);color:#fff;font-size:11px;font-weight:700;cursor:pointer" title="Export to PDF">🖨 PDF</button>
       <button class="action-nav-btn" onclick="navigateTo('action')">📋 Action Plan</button>
       <button class="action-nav-btn" onclick="navigateTo('home')">🏠</button>
@@ -1526,7 +1531,7 @@ function rowMain(t) {
       </div>
     </td>
   </tr>`;
-  return `<tr class="row-main">
+  return `<tr class="row-main" id="task-row-${t.id}">
     <td style="font-weight:700;color:#1e3a5f">${t.id}</td>
     <td><strong>${t.name}</strong>${pcHtml}</td>
     <td style="color:#003fa3;font-weight:600;font-size:12px">${calcDuration(t.start,t.finish)}</td>
@@ -2605,6 +2610,63 @@ function openPermitListByTaskStatus(mid, status) {
   _showPermitModal("📋 Permits — "+label+" / "+status.charAt(0).toUpperCase()+status.slice(1), _buildPermitRows(filtered));
 }
 
+
+// ── Main Task Search ──────────────────────────────────────────────────────
+function filterMainTaskSearch(q) {
+  const box = document.getElementById('main-task-suggestions');
+  if (!box) return;
+  if (!q || !q.trim()) { box.style.display = 'none'; return; }
+  const lq = q.toLowerCase();
+  const matches = mainTasks().filter(t =>
+    t.name.toLowerCase().includes(lq) || String(t.id).toLowerCase().includes(lq)
+  );
+  if (!matches.length) {
+    box.innerHTML = '<div style="padding:8px 12px;color:#888;font-size:12px">No matches</div>';
+    box.style.display = 'block';
+    return;
+  }
+  box.innerHTML = matches.map(t =>
+    '<div onclick="goToMainTask(\'' + t.id + '\')" ' +
+    'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;' +
+    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ' +
+    'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">' +
+    '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name +
+    '</div>'
+  ).join('');
+  box.style.display = 'block';
+}
+
+function goToMainTask(mid) {
+  const box = document.getElementById('main-task-suggestions');
+  if (box) box.style.display = 'none';
+  const mt = mainTasks().find(function(t){ return String(t.id) === String(mid); });
+  if (mt) {
+    const inp = document.getElementById('main-task-search');
+    if (inp) inp.value = mt.name;
+  }
+  const row = document.getElementById('task-row-' + mid);
+  if (!row) return;
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  row.style.outline = '2px solid #5b8dee';
+  row.style.outlineOffset = '-1px';
+  setTimeout(function(){ row.style.outline = ''; row.style.outlineOffset = ''; }, 2000);
+}
+
+function clearMainTaskSearch() {
+  const inp = document.getElementById('main-task-search');
+  if (inp) inp.value = '';
+  const box = document.getElementById('main-task-suggestions');
+  if (box) box.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('main-task-search-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const box = document.getElementById('main-task-suggestions');
+    if (box) box.style.display = 'none';
+  }
+});
+// ─────────────────────────────────────────────────────────────────────────
 
 function filterPermitListSearch(query) {
   const inp = document.getElementById('permit-search-input');
