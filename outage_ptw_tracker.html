@@ -544,7 +544,13 @@ textarea{resize:vertical;min-height:52px}
       <label class="fl">Discipline / Contractor</label>
       <input class="form-inp" id="pm-discipline" list="dl-disc" autocomplete="off" placeholder="— Discipline/Contractor —" style="width:100%">
     </div>
-    <div><label class="fl">PTW Number</label><input type="text" id="pm-ptw" placeholder="PTW number"></div>
+    <div>
+      <label class="fl">PTW Number</label>
+      <input type="text" id="pm-ptw" placeholder="PTW number" oninput="checkDuplicatePtw(this.value)" autocomplete="off">
+      <div id="pm-ptw-warn" style="display:none;margin-top:3px;padding:5px 8px;background:#4a1a00;border:1px solid #cc4400;border-radius:4px;color:#ffaa66;font-size:11px;font-weight:600">
+        ⚠ PTW number already exists on the list
+      </div>
+    </div>
     <div><label class="fl">LOB Number</label><input type="text" id="pm-lob" placeholder="LOB number"></div>
     <div><label class="fl">Cross Ref</label><input type="text" id="pm-crossref" placeholder="Cross Reference"></div>
     <div><label class="fl">RP Key Number</label><input type="text" id="pm-rp-key" placeholder="RP Key Number"></div>
@@ -1700,6 +1706,8 @@ function openPermitModal(preselectedMid) {
   clearFields(["pm-date","pm-time","pm-equip","pm-kks","pm-system","pm-scope",
     "pm-discipline","pm-ptw","pm-lob","pm-rp-key","pm-ap-key","pm-crossref",
     "pm-date-closed","pm-ap-closing","pm-ap","pm-rp","pm-status"]);
+  const _ptwWarn = document.getElementById('pm-ptw-warn');
+  if (_ptwWarn) _ptwWarn.style.display = 'none';
   ["hotwork","lifting","confined","hvoltage"].forEach(k => {
     document.getElementById(`pm-${k}`).checked = false;
     const n = document.getElementById(`pm-${k}-num`);
@@ -1739,11 +1747,35 @@ function saveTask(type) {
   closeAll(); render(); scheduleAutoSave();
 }
 
+function checkDuplicatePtw(val) {
+  const warn = document.getElementById('pm-ptw-warn');
+  if (!warn) return;
+  const v = (val || '').trim();
+  if (!v) { warn.style.display = 'none'; return; }
+  const isDup = permits.some(function(p){ return p.ptw && p.ptw.trim().toLowerCase() === v.toLowerCase(); });
+  warn.style.display = isDup ? 'block' : 'none';
+}
+
 function savePermit() {
   const mid = document.getElementById("pm-main-task").value;
   if (!mid) { alert("Please select a Main Task."); return; }
   const date = document.getElementById("pm-date").value;
   if (!date) { alert("DATE is required."); return; }
+  const ptwVal = document.getElementById("pm-ptw").value.trim();
+  if (ptwVal) {
+    const dupPermit = permits.find(function(p){ return p.ptw && p.ptw.trim().toLowerCase() === ptwVal.toLowerCase(); });
+    if (dupPermit) {
+      const mt = tasks.find(function(t){ return String(t.id) === String(dupPermit.mainTaskId); });
+      const mtLabel = mt ? ' (Main Task: ' + mt.name + ')' : '';
+      const proceed = confirm(
+        '⚠ WARNING: Duplicate PTW Number\n\n' +
+        'PTW "' + ptwVal + '" already exists on the permit list' + mtLabel + '.\n\n' +
+        'Do you want to continue adding this permit anyway?\n\n' +
+        'Click OK to add anyway, or Cancel to go back and change the PTW number.'
+      );
+      if (!proceed) return;
+    }
+  }
   const hw = document.getElementById("pm-hotwork").checked;
   const li = document.getElementById("pm-lifting").checked;
   const co = document.getElementById("pm-confined").checked;
