@@ -402,7 +402,7 @@ textarea{resize:vertical;min-height:52px}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px">
     <div id="main-task-search-wrap" style="position:relative;flex:0 0 340px">
       <input id="main-task-search" type="text" autocomplete="off"
-        placeholder="🔍 Search main task…"
+        placeholder="🔍 Search by main task / PTW Number…"
         oninput="filterMainTaskSearch(this.value)"
         onfocus="filterMainTaskSearch(this.value)"
         style="width:100%;padding:5px 28px 5px 10px;border:1px solid #3a5f9a;background:#0d1b2e;color:#fff;border-radius:5px;font-size:12px;box-sizing:border-box;outline:none">
@@ -1624,8 +1624,8 @@ function rowPermit(p) {
   const scopeText = p.scope ? `<div style="font-size:11px;color:#666;margin-top:2px;font-style:italic">${p.scope.length>100?p.scope.substring(0,100)+"…":p.scope}</div>` : "";
   const equipLine = p.equip ? `<span style="font-weight:600">${p.equip}</span>` : "—";
   const flagsHtml = flags ? `<span style="font-size:11px;color:#c84b00;margin-left:4px">${flags}</span>` : "";
-  return `<tr class="row-permit">
-    <td class="indent-2 permit-ref">${p.id}</td>
+  return `<tr class="row-permit" data-ptw="${p.ptw||''}" data-pid="${p.id}">
+    <td class="indent-2 permit-ref" style="white-space:nowrap">${p.ptw||p.id}</td>
     <td style="font-size:12px">${equipLine}${flagsHtml}${scopeText}</td>
     <td></td><td></td><td></td><td></td>
     <td>${statusCell(p.id,p.status,"permit")}</td>
@@ -2705,39 +2705,76 @@ function filterMainTaskSearch(q) {
   if (!box) return;
   if (!q || !q.trim()) { box.style.display = 'none'; return; }
   const lq = q.toLowerCase();
-  const matches = mainTasks().filter(t =>
+  // Match main tasks by name/id
+  const taskMatches = mainTasks().filter(t =>
     t.name.toLowerCase().includes(lq) || String(t.id).toLowerCase().includes(lq)
   );
-  if (!matches.length) {
+  // Match permits by PTW number → show parent main task
+  const ptwMatches = [];
+  const seenMids = new Set(taskMatches.map(t => String(t.id)));
+  permits.filter(p => p.ptw && String(p.ptw).toLowerCase().includes(lq)).forEach(function(p) {
+    const mid = String(p.mainTaskId);
+    if (!seenMids.has(mid)) {
+      const mt = mainTasks().find(t => String(t.id) === mid);
+      if (mt) { ptwMatches.push({mt, matchedPtw: p.ptw}); seenMids.add(mid); }
+    }
+  });
+  const allResults = taskMatches.map(function(t){ return {mt:t, matchedPtw:null}; }).concat(ptwMatches);
+  if (!allResults.length) {
     box.innerHTML = '<div style="padding:8px 12px;color:#888;font-size:12px">No matches</div>';
     box.style.display = 'block';
     return;
   }
-  box.innerHTML = matches.map(t =>
-    '<div onclick="goToMainTask(\'' + t.id + '\')" ' +
-    'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;' +
-    'white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ' +
-    'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">' +
-    '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name +
-    '</div>'
-  ).join('');
+  box.innerHTML = allResults.map(function(r) {
+    const t = r.mt;
+    const ptw = r.matchedPtw ? '<span style="color:#ffaa66;font-weight:700;margin-left:6px;font-size:10px">PTW ' + r.matchedPtw + '</span>' : '';
+    return '<div onclick="goToMainTask(\'' + t.id + '\',' + (r.matchedPtw ? '\'' + r.matchedPtw + '\'' : 'null') + ')" ' +
+      'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;' +
+      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ' +
+      'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">' +
+      '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name + ptw +
+      '</div>';
+  }).join('');
   box.style.display = 'block';
 }
 
-function goToMainTask(mid) {
+function goToMainTask(mid, ptwNum) {
   const box = document.getElementById('main-task-suggestions');
   if (box) box.style.display = 'none';
   const mt = mainTasks().find(function(t){ return String(t.id) === String(mid); });
   if (mt) {
     const inp = document.getElementById('main-task-search');
-    if (inp) inp.value = mt.name;
+    if (inp) inp.value = ptwNum ? 'PTW ' + ptwNum : mt.name;
   }
-  const row = document.getElementById('task-row-' + mid);
-  if (!row) return;
-  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  row.style.outline = '2px solid #5b8dee';
-  row.style.outlineOffset = '-1px';
-  setTimeout(function(){ row.style.outline = ''; row.style.outlineOffset = ''; }, 2000);
+
+  function highlightPermitRow() {
+    if (!ptwNum) return;
+    const pRow = document.querySelector('tr.row-permit[data-ptw="' + ptwNum + '"]');
+    if (!pRow) return;
+    pRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    pRow.style.background = '#fff3cd';
+    pRow.style.outline = '2px solid #f0a500';
+    pRow.style.outlineOffset = '-1px';
+    setTimeout(function(){ pRow.style.background = ''; pRow.style.outline = ''; pRow.style.outlineOffset = ''; }, 2500);
+  }
+
+  // Check if permits are already expanded
+  const existingPRow = document.querySelector('tr.row-permit[data-ptw="' + ptwNum + '"]');
+  if (ptwNum && !existingPRow) {
+    // Need to expand first, then highlight after DOM updates
+    togglePermits(mid);
+    setTimeout(highlightPermitRow, 120);
+  } else if (ptwNum) {
+    highlightPermitRow();
+  } else {
+    // No PTW — just scroll to main task row
+    const row = document.getElementById('task-row-' + mid);
+    if (!row) return;
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.style.outline = '2px solid #5b8dee';
+    row.style.outlineOffset = '-1px';
+    setTimeout(function(){ row.style.outline = ''; row.style.outlineOffset = ''; }, 2000);
+  }
 }
 
 function clearMainTaskSearch() {
