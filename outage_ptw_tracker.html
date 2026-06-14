@@ -281,6 +281,7 @@ textarea{resize:vertical;min-height:52px}
 .admin-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(76,175,80,.2);border:1px solid #81c784;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;color:#c8e6c9;margin-left:10px}
 
 /* ── PERMIT VIOLATIONS ── */
+.vcat-opt{padding:8px 12px;cursor:pointer;font-size:12px;color:#1e3a5f;border-bottom:1px solid #f0f2f8}.vcat-opt:hover{background:#edf2ff}
 .violation-section{margin-top:16px;border-top:2px solid #fce4ec;padding-top:12px}
 .violation-section-title{font-size:11px;font-weight:700;color:#c62828;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .violation-item{background:#fff5f5;border:1px solid #ffcdd2;border-radius:6px;padding:9px 12px;margin-bottom:6px;font-size:12px}
@@ -432,7 +433,7 @@ textarea{resize:vertical;min-height:52px}
   <option>Electrical building</option><option>Expansion</option>
   <option>Fire System</option><option>Filtration</option>
   <option>HTF circuit</option><option>Instrument Air</option>
-  <option>Reservoir</option><option>Solar field</option><option>SSG</option>
+  <option>Reservoir</option><option>Solar Field Correctives</option><option>Solar field</option><option>SSG</option>
   <option>Steam</option><option>TES</option><option>Turbogenerator</option>
   <option>Ullage</option><option>WTP</option><option>WWTP</option>
 </datalist>
@@ -638,6 +639,9 @@ textarea{resize:vertical;min-height:52px}
   <h2>✏ Edit Permit</h2>
   <input type="hidden" id="ep-id">
   <p id="ep-permit-info" style="font-size:11px;color:#888;margin-bottom:4px"></p>
+  <div id="ep-restrict-notice" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:7px 12px;margin-bottom:8px;font-size:11px;color:#856404;font-weight:600">
+    🔒 Limited editing — only <strong>Date Closed</strong>, <strong>AP Responsible for Closing</strong> and <strong>PTW Status</strong> can be changed. Log in as Administrator to edit all fields.
+  </div>
   <div class="form-grid">
     <div class="sec-title" style="border-top:none;padding-top:0;margin-top:0">Location</div>
     <div class="full">
@@ -827,7 +831,7 @@ textarea{resize:vertical;min-height:52px}
       <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
         <table class="viol-list-table">
           <thead><tr>
-            <th>Date</th><th>Permit Number</th><th>Scope of Work</th>
+            <th>Date</th><th>Flagged By</th><th>Permit Number</th><th>Scope of Work</th>
             <th>Category / Subcategory</th>
             <th style="min-width:200px">Violation Description</th>
             <th>Action Owner</th>
@@ -868,21 +872,41 @@ textarea{resize:vertical;min-height:52px}
   <input type="hidden" id="vf-main-task-id">
   <div class="form-grid">
     <div class="sec-title" style="border-top:none;padding-top:0;margin-top:0">Auto-filled from Permit</div>
-    <div><label class="fl">Permit Number</label><input type="text" id="vf-permit-display" class="vf-readonly" readonly></div>
+    <div><label class="fl">PTW Number</label><input type="text" id="vf-permit-display" class="vf-readonly" readonly></div>
     <div><label class="fl">RP <span style="font-weight:400;color:#888;font-size:10px">(pre-filled · change if needed)</span></label><input type="text" id="vf-rp" list="dl-rp" placeholder="Select or type RP name…"></div>
     <div><label class="fl">AP <span style="font-weight:400;color:#888;font-size:10px">(pre-filled · change if needed)</span></label><input type="text" id="vf-ap" list="dl-ap" placeholder="Select or type AP name…"></div>
-    <div><label class="fl">Discipline / Contractor</label><input type="text" id="vf-discipline" class="vf-readonly" readonly></div>
+    <div>
+      <label class="fl">Discipline / Contractor <span style="font-weight:400;color:#888;font-size:10px">(pre-filled · change if needed)</span></label>
+      <div style="position:relative">
+        <input type="text" id="vf-discipline" autocomplete="off" placeholder="Select or type…"
+          oninput="filterViolDiscDD(this.value)"
+          onclick="showViolDiscDD()" onfocus="showViolDiscDD()">
+        <div id="viol-disc-dd" style="display:none;position:absolute;top:100%;left:0;width:100%;background:#fff;border:1.5px solid #c5d0f0;border-top:none;border-radius:0 0 6px 6px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:200px;overflow-y:auto">
+          <div class="vcat-opt" onclick="selectViolDisc('Operations')">Operations</div>
+          <div class="vcat-opt" onclick="selectViolDisc('Mechanical')">Mechanical</div>
+          <div class="vcat-opt" onclick="selectViolDisc('C&amp;I')">C&amp;I</div>
+          <div class="vcat-opt" onclick="selectViolDisc('Electrical')">Electrical</div>
+          <div class="vcat-opt" onclick="selectViolDisc('Solar field')">Solar field</div>
+          <div class="vcat-opt" onclick="selectViolDisc('HSE')">HSE</div>
+        </div>
+      </div>
+    </div>
     <div class="full"><label class="fl">Main Task</label><input type="text" id="vf-main-task" class="vf-readonly" readonly style="color:#1e3a5f;font-weight:600"></div>
     <div class="sec-title">Violation Details</div>
     <div><label class="fl">Date ✱</label><input type="date" id="vf-date"></div>
+    <div><label class="fl">Violation flagged by ✱</label><input type="text" id="vf-flagged-by" list="dl-ap" placeholder="Enter name…" autocomplete="off"></div>
     <div>
       <label class="fl">Violation Category ✱ <span style="font-weight:400;color:#888;font-size:10px">(select or type freely)</span></label>
-      <input type="text" id="vf-category" list="dl-vcat" placeholder="Select or type category…" oninput="updateViolationSubcategories()">
-      <datalist id="dl-vcat">
-        <option value="Category 1: Safety violations"></option>
-        <option value="Category 2: Operational compliance violation"></option>
-        <option value="Category 3: Administrative &amp; PPE violations"></option>
-      </datalist>
+      <div style="position:relative">
+        <input type="text" id="vf-category" placeholder="Select or type category…" autocomplete="off"
+          oninput="updateViolationSubcategories();filterViolCatDD(this.value)"
+          onclick="showViolCatDD()" onfocus="showViolCatDD()">
+        <div id="viol-cat-dd" style="display:none;position:absolute;top:100%;left:0;width:100%;background:#fff;border:1.5px solid #c5d0f0;border-top:none;border-radius:0 0 6px 6px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:200px;overflow-y:auto">
+          <div class="vcat-opt" onclick="selectViolCat('Category 1: Safety violations')">Category 1: Safety violations</div>
+          <div class="vcat-opt" onclick="selectViolCat('Category 2: Operational compliance violation')">Category 2: Operational compliance violation</div>
+          <div class="vcat-opt" onclick="selectViolCat('Category 3: Administrative &amp; PPE violations')">Category 3: Administrative &amp; PPE violations</div>
+        </div>
+      </div>
     </div>
     <div class="full">
       <label class="fl">Violation Subcategory</label>
@@ -898,13 +922,16 @@ textarea{resize:vertical;min-height:52px}
       <label class="fl">Violation Description ✱</label>
       <textarea id="vf-description" style="min-height:100px;resize:vertical" placeholder="Describe the violation in detail…"></textarea>
     </div>
-    <div class="sec-title">Closing Action</div>
+    <div class="sec-title">Closing Action <span id="vf-closing-admin-tag" style="display:none;font-size:9px;font-weight:400;background:#1e3a5f;color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;letter-spacing:.5px;vertical-align:middle">🛡 Admin only</span></div>
+    <div id="vf-closing-admin-notice" style="display:none;background:#f0f4ff;border:1px solid #c5d0f0;border-radius:6px;padding:6px 10px;font-size:11px;color:#5a6fa8;margin-bottom:4px">
+      🔒 Action Owner and Due Date can only be set by an Administrator.
+    </div>
     <div class="full">
-      <label class="fl">Action Owner <span style="font-weight:400;color:#888;font-size:10px">(optional)</span></label>
+      <label class="fl">Action Owner <span style="font-weight:400;color:#888;font-size:10px">(admin only)</span></label>
       <input type="text" id="vf-closing-assigned" list="dl-ap" placeholder="Select or type name…">
     </div>
     <div>
-      <label class="fl">Due Date <span style="font-weight:400;color:#888;font-size:10px">(optional)</span></label>
+      <label class="fl">Due Date <span style="font-weight:400;color:#888;font-size:10px">(admin only)</span></label>
       <input type="date" id="vf-closing-date">
     </div>
   </div>
@@ -1196,7 +1223,7 @@ let tasks = [
   {id:"22.4",type:"Subtask",parent:22,name:"Install Panel heater",start:"2026-06-03T19:00",finish:"2026-06-04T01:00",baselineStart:"2026-06-03T19:00",baselineFinish:"2026-06-04T01:00",actualStart:"",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
   {id:"22.5",type:"Subtask",parent:22,name:"AF1UBE27GY001",start:"2026-06-03T19:00",finish:"2026-06-03T22:00",baselineStart:"2026-06-03T19:00",baselineFinish:"2026-06-03T22:00",actualStart:"",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
   {id:"22.6",type:"Subtask",parent:22,name:"AF1UBE31GY001",start:"2026-06-03T22:00",finish:"2026-06-04T01:00",baselineStart:"2026-06-03T22:00",baselineFinish:"2026-06-04T01:00",actualStart:"",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
-  {id:23,type:"MAIN TASK",name:"Solar Field Correctives",start:"2026-06-01T07:00",finish:"2026-06-19T07:00",baselineStart:"2026-06-01T07:00",baselineFinish:"2026-06-19T07:00",actualStart:"2026-06-01T07:00",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
+  {id:23,type:"MAIN TASK",group:"Solar Field Correctives",name:"Solar Field Correctives",start:"2026-06-01T07:00",finish:"2026-06-19T07:00",baselineStart:"2026-06-01T07:00",baselineFinish:"2026-06-19T07:00",actualStart:"2026-06-01T07:00",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
   {id:"23.1",type:"Subtask",parent:23,name:"Main pipe structure damage - B44",start:"2026-06-09T07:00",finish:"2026-06-11T07:00",baselineStart:"2026-06-09T07:00",baselineFinish:"2026-06-11T07:00",actualStart:"",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
   {id:"23.2",type:"Subtask",parent:23,name:"Structural damage - F22",start:"2026-06-11T07:00",finish:"2026-06-13T07:00",baselineStart:"2026-06-11T07:00",baselineFinish:"2026-06-13T07:00",actualStart:"",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
   {id:"23.3",type:"Subtask",parent:23,name:"Rotate drive axis",start:"2026-06-13T07:00",finish:"2026-06-19T07:00",baselineStart:"2026-06-13T07:00",baselineFinish:"2026-06-19T07:00",actualStart:"",actualFinish:"",resources:"",status:"",pctComplete:null,notes:""},
@@ -1904,10 +1931,34 @@ function setApClosing(pid, val) {
 }
 
 // ── EDIT PERMIT ──
+// Fields that only admins can edit
+const EP_ADMIN_FIELDS = ["ep-main-task","ep-date","ep-time","ep-equip","ep-kks","ep-system",
+  "ep-scope","ep-discipline","ep-ptw","ep-lob","ep-crossref","ep-rp-key","ep-ap-key","ep-ap","ep-rp",
+  "ep-hotwork","ep-hotwork-num","ep-lifting","ep-lifting-num","ep-confined","ep-confined-num","ep-hvoltage","ep-hvoltage-num"];
+
+function _setEpRestricted(restricted) {
+  const notice = document.getElementById('ep-restrict-notice');
+  if (notice) notice.style.display = restricted ? 'block' : 'none';
+  EP_ADMIN_FIELDS.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = restricted;
+    el.style.opacity = restricted ? '0.45' : '';
+    el.style.cursor  = restricted ? 'not-allowed' : '';
+  });
+  // Grey out section labels for non-admin
+  ['Location','Permit Details','Hazard Flags & Quantities'].forEach(function(label) {
+    document.querySelectorAll('#modal-edit-permit .sec-title').forEach(function(el) {
+      if (el.textContent.trim().startsWith(label.substring(0,8)))
+        el.style.opacity = restricted ? '0.45' : '';
+    });
+  });
+}
+
 function editPermit(pid) {
   const p = permits.find(p=>String(p.id)===String(pid));
   if (!p) return;
-  if (p.status === "Closed") { alert("This permit is Closed and cannot be edited."); return; }
+  if (!isAdmin && p.status === "Closed") { alert("This permit is Closed and cannot be edited."); return; }
   closeAll();
   // Populate main task dropdown
   document.getElementById("ep-main-task").innerHTML =
@@ -1931,13 +1982,14 @@ function editPermit(pid) {
   document.getElementById("ep-date-closed").value = p.dateClosed||"";
   document.getElementById("ep-ap-closing").value = p.apClosing||"";
   document.getElementById("ep-status").value = p.status||"";
-  document.getElementById("ep-permit-info").textContent = `Editing Permit ${pid}`;
+  document.getElementById("ep-permit-info").textContent = `Editing Permit ${pid}` + (isAdmin ? ' · Admin mode' : '');
   ["hotwork","lifting","confined","hvoltage"].forEach(k=>{
     const cb=document.getElementById(`ep-${k}`);
     const numEl=document.getElementById(`ep-${k}-num`);
     cb.checked=!!p[k]; numEl.value=p[`${k}Num`]||"";
     numEl.classList.toggle("show",!!p[k]);
   });
+  _setEpRestricted(!isAdmin);
   show("modal-edit-permit");
 }
 
@@ -1945,33 +1997,37 @@ function saveEditPermit() {
   const pid=document.getElementById("ep-id").value;
   const p=permits.find(p=>String(p.id)===String(pid));
   if (!p) return;
-  const newMid = document.getElementById("ep-main-task").value;
-  if (newMid) p.mainTaskId = Number(newMid);
-  const hw=document.getElementById("ep-hotwork").checked;
-  const li=document.getElementById("ep-lifting").checked;
-  const co=document.getElementById("ep-confined").checked;
-  const hv=document.getElementById("ep-hvoltage").checked;
-  p.date=document.getElementById("ep-date").value;
-  p.time=document.getElementById("ep-time").value;
-  p.equip=document.getElementById("ep-equip").value.trim();
-  p.kks=document.getElementById("ep-kks").value.trim();
-  p.system=document.getElementById("ep-system").value.trim();
-  p.scope=document.getElementById("ep-scope").value.trim();
-  p.discipline=document.getElementById("ep-discipline").value.trim();
-  p.ptw=document.getElementById("ep-ptw").value.trim();
-  p.lob=document.getElementById("ep-lob").value.trim();
-  p.rpKey=document.getElementById("ep-rp-key").value.trim();
-  p.apKey=document.getElementById("ep-ap-key").value.trim();
-  p.crossref=document.getElementById("ep-crossref").value.trim();
-  p.ap=document.getElementById("ep-ap").value.trim();
-  p.rp=document.getElementById("ep-rp").value.trim();
+  // All users may update closure fields
   p.dateClosed=document.getElementById("ep-date-closed").value;
   p.apClosing=document.getElementById("ep-ap-closing").value.trim();
   p.status=document.getElementById("ep-status").value;
-  p.hotwork=hw; p.hotworkNum=hw?(Number(document.getElementById("ep-hotwork-num").value)||1):0;
-  p.lifting=li; p.liftingNum=li?(Number(document.getElementById("ep-lifting-num").value)||1):0;
-  p.confined=co; p.confinedNum=co?(Number(document.getElementById("ep-confined-num").value)||1):0;
-  p.hvoltage=hv; p.hvoltageNum=hv?(Number(document.getElementById("ep-hvoltage-num").value)||1):0;
+  // Admin-only fields
+  if (isAdmin) {
+    const newMid = document.getElementById("ep-main-task").value;
+    if (newMid) p.mainTaskId = Number(newMid);
+    const hw=document.getElementById("ep-hotwork").checked;
+    const li=document.getElementById("ep-lifting").checked;
+    const co=document.getElementById("ep-confined").checked;
+    const hv=document.getElementById("ep-hvoltage").checked;
+    p.date=document.getElementById("ep-date").value;
+    p.time=document.getElementById("ep-time").value;
+    p.equip=document.getElementById("ep-equip").value.trim();
+    p.kks=document.getElementById("ep-kks").value.trim();
+    p.system=document.getElementById("ep-system").value.trim();
+    p.scope=document.getElementById("ep-scope").value.trim();
+    p.discipline=document.getElementById("ep-discipline").value.trim();
+    p.ptw=document.getElementById("ep-ptw").value.trim();
+    p.lob=document.getElementById("ep-lob").value.trim();
+    p.rpKey=document.getElementById("ep-rp-key").value.trim();
+    p.apKey=document.getElementById("ep-ap-key").value.trim();
+    p.crossref=document.getElementById("ep-crossref").value.trim();
+    p.ap=document.getElementById("ep-ap").value.trim();
+    p.rp=document.getElementById("ep-rp").value.trim();
+    p.hotwork=hw; p.hotworkNum=hw?(Number(document.getElementById("ep-hotwork-num").value)||1):0;
+    p.lifting=li; p.liftingNum=li?(Number(document.getElementById("ep-lifting-num").value)||1):0;
+    p.confined=co; p.confinedNum=co?(Number(document.getElementById("ep-confined-num").value)||1):0;
+    p.hvoltage=hv; p.hvoltageNum=hv?(Number(document.getElementById("ep-hvoltage-num").value)||1):0;
+  }
   closeAll(); render(); scheduleAutoSave();
 }
 
@@ -2559,7 +2615,7 @@ function openPermitListModal(filterStatus) {
     ? permits
     : permits.filter(p=>(p.status||"").toLowerCase()===filterStatus.toLowerCase());
   if (!filtered.length) {
-    body.innerHTML = `<tr><td colspan="23" class="empty">No ${filterStatus||""} permits.</td></tr>`;
+    body.innerHTML = `<tr><td colspan="22" class="empty">No ${filterStatus||""} permits.</td></tr>`;
   } else {
     const fmtHaz = (flag, num) => flag ? (num > 1 ? `Yes (x${num})` : "Yes") : "";
     body.innerHTML = filtered.map((p,i) => {
@@ -2570,11 +2626,11 @@ function openPermitListModal(filterStatus) {
         : `<span style="color:#bbb;font-size:10px;margin-right:5px">0</span>`;
       const sColor = (p.status||"").toLowerCase()==="open"?"#2d6a4f":(p.status||"").toLowerCase()==="suspended"?"#b07b1e":"#6b7d8a";
       return `<tr style="${rowBg}">
-        <td style="font-weight:700;color:#1e3a5f;white-space:nowrap">${p.id}</td>
+        <td style="font-weight:700;color:#00695c;white-space:nowrap">${p.ptw||""}</td>
         <td>${p.date||""}</td><td>${p.time||""}</td>
         <td>${p.equip||""}</td><td>${p.kks||""}</td><td>${p.system||""}</td>
         <td style="min-width:220px">${p.scope||""}</td>
-        <td>${p.discipline||""}</td><td>${p.ptw||""}</td><td>${p.lob||""}</td>
+        <td>${p.discipline||""}</td><td>${p.lob||""}</td>
         <td>${p.crossref||""}</td><td>${p.rpKey||""}</td><td>${p.apKey||""}</td>
         <td>${p.ap||""}</td><td>${p.rp||""}</td>
         <td>${fmtHaz(p.hotwork,p.hotworkNum)}</td>
@@ -2595,7 +2651,7 @@ function openPermitListModal(filterStatus) {
 
 function _buildPermitRows(filtered) {
   const fmtHaz = (flag, num) => flag ? (num > 1 ? "Yes (x"+num+")" : "Yes") : "";
-  if (!filtered.length) return "<tr><td colspan='23' class='empty'>No permits found.</td></tr>";
+  if (!filtered.length) return "<tr><td colspan='22' class='empty'>No permits found.</td></tr>";
   return filtered.map((p,i) => {
     const rowBg = i%2===0?"":"background:#f5f7ff";
     const vc = violations.filter(v=>String(v.permitId)===String(p.id)).length;
@@ -2604,11 +2660,11 @@ function _buildPermitRows(filtered) {
       : "<span style='color:#bbb;font-size:10px;margin-right:5px'>0</span>";
     const sColor = (p.status||"").toLowerCase()==="open"?"#2d6a4f":(p.status||"").toLowerCase()==="suspended"?"#b07b1e":"#6b7d8a";
     return "<tr style='"+rowBg+"'>"
-      +"<td style='font-weight:700;color:#1e3a5f;white-space:nowrap'>"+p.id+"</td>"
+      +"<td style='font-weight:700;color:#00695c;white-space:nowrap'>"+(p.ptw||"")+"</td>"
       +"<td>"+(p.date||"")+"</td><td>"+(p.time||"")+"</td>"
       +"<td>"+(p.equip||"")+"</td><td>"+(p.kks||"")+"</td><td>"+(p.system||"")+"</td>"
       +"<td style='min-width:220px'>"+(p.scope||"")+"</td>"
-      +"<td>"+(p.discipline||"")+"</td><td>"+(p.ptw||"")+"</td><td>"+(p.lob||"")+"</td>"
+      +"<td>"+(p.discipline||"")+"</td><td>"+(p.lob||"")+"</td>"
       +"<td>"+(p.crossref||"")+"</td><td>"+(p.rpKey||"")+"</td><td>"+(p.apKey||"")+"</td>"
       +"<td>"+(p.ap||"")+"</td><td>"+(p.rp||"")+"</td>"
       +"<td>"+fmtHaz(p.hotwork,p.hotworkNum)+"</td><td>"+fmtHaz(p.lifting,p.liftingNum)+"</td>"
@@ -2711,15 +2767,14 @@ function filterPermitListSearch(query) {
   // Build suggestions when typing (before Enter / selection)
   if (q.length > 0) {
     const matches = permits.filter(p =>
-      String(p.id||'').toLowerCase().includes(q) ||
-      (p.equip||'').toLowerCase().includes(q) ||
+      (p.ptw||'').toLowerCase().includes(q) ||
       (p.kks||'').toLowerCase().includes(q)
     );
-    // Collect unique suggestion tokens
+    // Collect unique suggestion tokens (PTW and KKS only)
     const seen = new Set();
     const sugs = [];
     matches.forEach(p => {
-      [[p.id,'#'], [p.equip,'Equip'], [p.kks,'KKS']].forEach(([val,type]) => {
+      [[p.ptw,'PTW'], [p.kks,'KKS']].forEach(([val,type]) => {
         const v = String(val||'').trim();
         if (v && v.toLowerCase().includes(q) && !seen.has(v)) {
           seen.add(v);
@@ -2750,13 +2805,12 @@ function filterPermitListSearch(query) {
     return;
   }
   const filtered = permits.filter(p =>
-    String(p.id||'').toLowerCase().includes(q) ||
-    (p.equip||'').toLowerCase().includes(q) ||
+    (p.ptw||'').toLowerCase().includes(q) ||
     (p.kks||'').toLowerCase().includes(q)
   );
   const fmtHaz = (flag, num) => flag ? (num > 1 ? "Yes (x"+num+")" : "Yes") : "";
   if (!filtered.length) {
-    body.innerHTML = '<tr><td colspan="23" class="empty">No permits match &quot;'+query+'&quot;.</td></tr>';
+    body.innerHTML = '<tr><td colspan="22" class="empty">No permits match &quot;'+query+'&quot;.</td></tr>';
     return;
   }
   body.innerHTML = filtered.map((p,i) => {
@@ -2773,11 +2827,11 @@ function filterPermitListSearch(query) {
       return String(str).replace(rx,'<mark style="background:#fff3a3;border-radius:2px;padding:0 1px">$1</mark>');
     }
     return "<tr style='"+rowBg+"'>"
-      +"<td style='font-weight:700;color:#1e3a5f;white-space:nowrap'>"+hl(p.id)+"</td>"
+      +"<td style='font-weight:700;color:#00695c;white-space:nowrap'>"+hl(p.ptw||"")+"</td>"
       +"<td>"+(p.date||"")+"</td><td>"+(p.time||"")+"</td>"
-      +"<td>"+hl(p.equip||"")+"</td><td>"+hl(p.kks||"")+"</td><td>"+(p.system||"")+"</td>"
+      +"<td>"+(p.equip||"")+"</td><td>"+hl(p.kks||"")+"</td><td>"+(p.system||"")+"</td>"
       +"<td style='min-width:220px'>"+(p.scope||"")+"</td>"
-      +"<td>"+(p.discipline||"")+"</td><td>"+(p.ptw||"")+"</td><td>"+(p.lob||"")+"</td>"
+      +"<td>"+(p.discipline||"")+"</td><td>"+(p.lob||"")+"</td>"
       +"<td>"+(p.crossref||"")+"</td><td>"+(p.rpKey||"")+"</td><td>"+(p.apKey||"")+"</td>"
       +"<td>"+(p.ap||"")+"</td><td>"+(p.rp||"")+"</td>"
       +"<td>"+fmtHaz(p.hotwork,p.hotworkNum)+"</td><td>"+fmtHaz(p.lifting,p.liftingNum)+"</td>"
@@ -2803,7 +2857,7 @@ function openPermitListByDisc(disc) {
   const filtered = permits.filter(p=>(p.discipline||"").trim()===disc);
   const fmtHaz = (flag, num) => flag ? (num > 1 ? "Yes (x"+num+")" : "Yes") : "";
   if (!filtered.length) {
-    body.innerHTML = "<tr><td colspan='23' class='empty'>No permits found for "+disc+".</td></tr>";
+    body.innerHTML = "<tr><td colspan='22' class='empty'>No permits found for "+disc+".</td></tr>";
   } else {
     body.innerHTML = filtered.map((p,i) => {
       const rowBg = i%2===0?"":"background:#f5f7ff";
@@ -2813,11 +2867,11 @@ function openPermitListByDisc(disc) {
         : "<span style='color:#bbb;font-size:10px;margin-right:5px'>0</span>";
       const sColor = (p.status||"").toLowerCase()==="open"?"#2d6a4f":(p.status||"").toLowerCase()==="suspended"?"#b07b1e":"#6b7d8a";
       return "<tr style='"+rowBg+"'>"
-        +"<td style='font-weight:700;color:#1e3a5f;white-space:nowrap'>"+p.id+"</td>"
+        +"<td style='font-weight:700;color:#00695c;white-space:nowrap'>"+(p.ptw||"")+"</td>"
         +"<td>"+(p.date||"")+"</td><td>"+(p.time||"")+"</td>"
         +"<td>"+(p.equip||"")+"</td><td>"+(p.kks||"")+"</td><td>"+(p.system||"")+"</td>"
         +"<td style='min-width:220px'>"+(p.scope||"")+"</td>"
-        +"<td>"+(p.discipline||"")+"</td><td>"+(p.ptw||"")+"</td><td>"+(p.lob||"")+"</td>"
+        +"<td>"+(p.discipline||"")+"</td><td>"+(p.lob||"")+"</td>"
         +"<td>"+(p.crossref||"")+"</td><td>"+(p.rpKey||"")+"</td><td>"+(p.apKey||"")+"</td>"
         +"<td>"+(p.ap||"")+"</td><td>"+(p.rp||"")+"</td>"
         +"<td>"+fmtHaz(p.hotwork,p.hotworkNum)+"</td><td>"+fmtHaz(p.lifting,p.liftingNum)+"</td>"
@@ -2848,7 +2902,7 @@ function openPermitListByDiscStatus(disc, status) {
   );
   const fmtHaz = (flag, num) => flag ? (num > 1 ? "Yes (x"+num+")" : "Yes") : "";
   if (!filtered.length) {
-    body.innerHTML = "<tr><td colspan='23' class='empty'>No "+status+" permits for "+disc+".</td></tr>";
+    body.innerHTML = "<tr><td colspan='22' class='empty'>No "+status+" permits for "+disc+".</td></tr>";
   } else {
     body.innerHTML = filtered.map((p,i) => {
       const rowBg = i%2===0?"":"background:#f5f7ff";
@@ -2857,11 +2911,11 @@ function openPermitListByDiscStatus(disc, status) {
         ? "<span style='background:#c62828;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-right:5px'>"+vc+"</span>"
         : "<span style='color:#bbb;font-size:10px;margin-right:5px'>0</span>";
       const sColor = (p.status||"").toLowerCase()==="open"?"#2d6a4f":(p.status||"").toLowerCase()==="suspended"?"#b07b1e":"#6b7d8a";
-      return "<tr style='"+rowBg+"'><td style='font-weight:700;color:#1e3a5f;white-space:nowrap'>"+p.id+"</td>"
+      return "<tr style='"+rowBg+"'><td style='font-weight:700;color:#00695c;white-space:nowrap'>"+(p.ptw||"")+"</td>"
         +"<td>"+( p.date||"")+"</td><td>"+(p.time||"")+"</td>"
         +"<td>"+(p.equip||"")+"</td><td>"+(p.kks||"")+"</td><td>"+(p.system||"")+"</td>"
         +"<td style='min-width:220px'>"+(p.scope||"")+"</td>"
-        +"<td>"+(p.discipline||"")+"</td><td>"+(p.ptw||"")+"</td><td>"+(p.lob||"")+"</td>"
+        +"<td>"+(p.discipline||"")+"</td><td>"+(p.lob||"")+"</td>"
         +"<td>"+(p.crossref||"")+"</td><td>"+(p.rpKey||"")+"</td><td>"+(p.apKey||"")+"</td>"
         +"<td>"+(p.ap||"")+"</td><td>"+(p.rp||"")+"</td>"
         +"<td>"+fmtHaz(p.hotwork,p.hotworkNum)+"</td><td>"+fmtHaz(p.lifting,p.liftingNum)+"</td>"
@@ -3323,7 +3377,7 @@ function openSPConfig() {
   document.getElementById('gh-branch').value   = GH.branch;
   document.getElementById('gh-filepath').value = GH.filePath;
   const instr = document.getElementById('sp-setup-instructions');
-  if (instr) instr.style.display = isAdmin ? 'block' : 'none';
+  if (instr) instr.style.display = 'none';
   show('modal-sp-config');
 }
 
@@ -3482,6 +3536,53 @@ const VIOL_CATS = {
   ]
 };
 
+function showViolDiscDD() {
+  const dd = document.getElementById('viol-disc-dd');
+  if (!dd) return;
+  dd.style.display = 'block';
+}
+function filterViolDiscDD(q) {
+  const dd = document.getElementById('viol-disc-dd');
+  if (!dd) return;
+  const lq = q.toLowerCase();
+  dd.querySelectorAll('.vcat-opt').forEach(function(el) {
+    el.style.display = el.textContent.toLowerCase().includes(lq) ? '' : 'none';
+  });
+  dd.style.display = 'block';
+}
+function selectViolDisc(val) {
+  document.getElementById('vf-discipline').value = val;
+  document.getElementById('viol-disc-dd').style.display = 'none';
+}
+
+function showViolCatDD() {
+  const dd = document.getElementById('viol-cat-dd');
+  if (!dd) return;
+  dd.style.display = 'block';
+}
+function filterViolCatDD(q) {
+  const dd = document.getElementById('viol-cat-dd');
+  if (!dd) return;
+  const lq = q.toLowerCase();
+  dd.querySelectorAll('.vcat-opt').forEach(function(el) {
+    el.style.display = el.textContent.toLowerCase().includes(lq) ? '' : 'none';
+  });
+  dd.style.display = 'block';
+}
+function selectViolCat(val) {
+  document.getElementById('vf-category').value = val;
+  document.getElementById('viol-cat-dd').style.display = 'none';
+  updateViolationSubcategories();
+}
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('viol-cat-dd');
+  const inp = document.getElementById('vf-category');
+  if (dd && inp && !inp.contains(e.target) && !dd.contains(e.target)) dd.style.display = 'none';
+  const dd2 = document.getElementById('viol-disc-dd');
+  const inp2 = document.getElementById('vf-discipline');
+  if (dd2 && inp2 && !inp2.contains(e.target) && !dd2.contains(e.target)) dd2.style.display = 'none';
+});
+
 function openViolationModal(pid) {
   const p = permits.find(p => String(p.id) === String(pid));
   if (!p) return;
@@ -3491,7 +3592,7 @@ function openViolationModal(pid) {
   closeAll();
   document.getElementById('vf-permit-id').value      = p.id;
   document.getElementById('vf-main-task-id').value   = mainTaskId;
-  document.getElementById('vf-permit-display').value = p.ptw ? p.ptw + ' (' + p.id + ')' : p.id;
+  document.getElementById('vf-permit-display').value = p.ptw || '(no PTW number)';
   document.getElementById('vf-main-task').value      = mainTaskName;
   document.getElementById('vf-rp').value         = p.rp        || '';
   document.getElementById('vf-ap').value         = p.ap        || '';
@@ -3500,8 +3601,22 @@ function openViolationModal(pid) {
   document.getElementById('vf-category').value   = '';
   document.getElementById('vf-description').value = '';
   document.getElementById('vf-subcategory-other-row').style.display = 'none';
+  document.getElementById('vf-flagged-by').value = '';
   document.getElementById('vf-closing-assigned').value = '';
   document.getElementById('vf-closing-date').value = '';
+  // Lock closing fields for non-admins
+  const _caLock = !isAdmin;
+  ['vf-closing-assigned','vf-closing-date'].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.disabled = _caLock;
+    el.style.opacity = _caLock ? '0.45' : '';
+    el.style.cursor  = _caLock ? 'not-allowed' : '';
+  });
+  const _notice = document.getElementById('vf-closing-admin-notice');
+  const _tag    = document.getElementById('vf-closing-admin-tag');
+  if (_notice) _notice.style.display = _caLock ? 'block' : 'none';
+  if (_tag)    _tag.style.display    = _caLock ? 'inline' : 'none';
   updateViolationSubcategories();
   show('modal-violation');
 }
@@ -3548,8 +3663,9 @@ function saveViolation() {
     ap:         document.getElementById('vf-ap').value,
     discipline: document.getElementById('vf-discipline').value,
     date, category: cat, subcategory, description: desc,
-    actionOwner: document.getElementById('vf-closing-assigned').value.trim(),
-    dueDate: document.getElementById('vf-closing-date').value
+    flaggedBy: document.getElementById('vf-flagged-by').value.trim(),
+    actionOwner: isAdmin ? document.getElementById('vf-closing-assigned').value.trim() : '',
+    dueDate: isAdmin ? document.getElementById('vf-closing-date').value : ''
   });
   closeAll();
   scheduleAutoSave();
@@ -3769,6 +3885,15 @@ function updateViolDonut() {
   if (sel) renderViolDonut(sel.value);
 }
 
+function openPermitsByViolation(key, metric) {
+  const keyFn = metric === 'discipline' ? function(v){ return v.discipline || 'Unknown'; }
+              : metric === 'task'       ? function(v){ return v.mainTask   || 'Unknown'; }
+              :                           function(v){ return (v.category  || 'Unknown').replace(/^Category \d+: /,''); };
+  const permitIds = new Set(violations.filter(function(v){ return keyFn(v) === key; }).map(function(v){ return String(v.permitId); }));
+  const filtered = permits.filter(function(p){ return permitIds.has(String(p.id)); });
+  _showPermitModal("📋 Permits — Violation: " + key, _buildPermitRows(filtered));
+}
+
 function renderViolDonut(metric) {
   const svgEl = document.getElementById('viol-donut-svg');
   const legEl = document.getElementById('viol-donut-legend');
@@ -3800,14 +3925,15 @@ function renderViolDonut(metric) {
     const x2=cx+R*Math.cos(endAng),   y2=cy+R*Math.sin(endAng);
     const xi1=cx+Ri*Math.cos(startAng), yi1=cy+Ri*Math.sin(startAng);
     const xi2=cx+Ri*Math.cos(endAng),   yi2=cy+Ri*Math.sin(endAng);
-    paths += `<path d="M${xi1.toFixed(1)},${yi1.toFixed(1)} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${Ri},${Ri},0,${large},0,${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${col}" stroke="white" stroke-width="1.5"><title>${key}: ${n}</title></path>`;
+    const _ek = JSON.stringify(key);
+    paths += `<path d="M${xi1.toFixed(1)},${yi1.toFixed(1)} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${Ri},${Ri},0,${large},0,${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${col}" stroke="white" stroke-width="1.5" style="cursor:pointer" onclick="openPermitsByViolation(${_ek},'${metric}')" onmouseover="this.style.opacity='.78'" onmouseout="this.style.opacity='1'"><title>${key}: ${n} — click to view permits</title></path>`;
     if (pct > 0.08) {
       const mid = startAng + ang/2;
       const labelR = (R + Ri) / 2;  // midpoint of ring band
       paths += `<text x="${(cx+labelR*Math.cos(mid)).toFixed(1)}" y="${(cy+labelR*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="Arial,sans-serif">${n}</text>`;
     }
     startAng = endAng;
-    const lbl = key.length > 22 ? key.substring(0,21)+'\u2026' : key;
+    const lbl = key;
     legend += `<div style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;min-width:11px;background:${col};border-radius:2px"></span><span style="flex:1;font-size:10px;color:#333">${lbl}</span><span style="font-weight:700;font-size:11px;color:#1e3a5f;padding-left:4px">${n}</span></div>`;
   });
   paths += `<circle cx="${cx}" cy="${cy}" r="${Ri}" fill="white"/>`;
@@ -3828,7 +3954,7 @@ function _renderViolBar(svgId, keyFn) {
   const counts = {};
   violations.forEach(v => { const k = keyFn(v); counts[k] = (counts[k]||0)+1; });
   const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const BAR_H=24, ROW_GAP=6, LEFT_PAD=170, RIGHT_PAD=36, TOP_PAD=6, BTMPAD=4;
+  const BAR_H=24, ROW_GAP=6, LEFT_PAD=220, RIGHT_PAD=36, TOP_PAD=6, BTMPAD=4;
   const rowH   = BAR_H + ROW_GAP;
   const maxVal = Math.max(1, ...sorted.map(([,v]) => v));
   const wrap   = svgEl.parentElement;
@@ -3842,7 +3968,7 @@ function _renderViolBar(svgId, keyFn) {
     const gy  = TOP_PAD + i * rowH;
     const col = PALETTE[i % PALETTE.length];
     const bw  = toW(val);
-    const lbl = key.length > 26 ? key.substring(0,25)+'\u2026' : key;
+    const lbl = key;
     out += `<text x="${LEFT_PAD-5}" y="${gy+BAR_H/2+4}" text-anchor="end" font-size="9.5" fill="#444" font-family="Arial,sans-serif">${lbl}</text>`;
     out += `<rect x="${LEFT_PAD}" y="${gy}" width="${bw}" height="${BAR_H}" fill="${col}" rx="3"><title>${key}: ${val}</title></rect>`;
     if (bw >= 22) {
@@ -3868,7 +3994,7 @@ function _renderViolTable() {
   const body = document.getElementById('viol-table-body');
   if (!body) return;
   if (!violations.length) {
-    body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#aaa;padding:20px;font-style:italic">No violations recorded.</td></tr>';
+    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:20px;font-style:italic">No violations recorded.</td></tr>';
     return;
   }
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -3885,6 +4011,7 @@ function _renderViolTable() {
       : esc(v.dueDate || '—');
     return `<tr>
       <td style="white-space:nowrap">${esc(v.date||'—')}</td>
+      <td style="white-space:nowrap">${esc(v.flaggedBy||'—')}</td>
       <td style="white-space:nowrap;font-weight:600;color:#1e3a5f">${esc(ptwNum)}</td>
       <td style="max-width:180px;font-size:11px">${esc(scope)}</td>
       <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<br><span style="font-size:10px;color:#888">&#8627; ${esc(v.subcategory)}</span>`:''}</td>
@@ -3897,7 +4024,7 @@ function _renderViolTable() {
 
 // ── GLOBAL EVENTS ──
 document.querySelectorAll(".overlay").forEach(o=>{
-  if(o.id==="modal-permit"||o.id==="modal-edit-permit") return; // permit forms only close via button
+  if(o.id==="modal-permit"||o.id==="modal-edit-permit"||o.id==="modal-violation") return; // these forms only close via button
   o.addEventListener("click",e=>{if(e.target===o)closeAll();});
 });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape")closeAll(); });
@@ -3988,10 +4115,10 @@ spInit();
   <div class="permit-list-wrap">
     <table class="permit-list-table" id="permit-list-tbl">
       <thead><tr>
-        <th>Ref No.</th><th>DATE</th><th>Time</th>
+        <th>PTW Number</th><th>DATE</th><th>Time</th>
         <th>Equipment Description</th><th>KKS</th><th>System</th>
         <th>Scope of Work</th><th>Discipline / Contractor</th>
-        <th>PTW Number</th><th>LOB Number</th><th>Cross Ref</th>
+        <th>LOB Number</th><th>Cross Ref</th>
         <th>RP Key Number</th><th>AP Key Number</th>
         <th>AP</th><th>RP</th>
         <th>🔥 Hotwork</th><th>🏗 Lifting &amp; Rigging</th>
