@@ -3335,9 +3335,11 @@ function startAutoRefresh() {
     if (GH.saveTimer) return;
     try {
       const data = await _ghRead(); if (!data) return;
-      const hash = JSON.stringify({tasks:data.tasks, permits:data.permits});
+      const hash = JSON.stringify({tasks:data.tasks, permits:data.permits, violations:data.violations});
       if (hash!==GH.lastHash) {
-        tasks=data.tasks||tasks; permits=data.permits||permits; GH.lastHash=hash; render();
+        tasks=data.tasks||tasks; permits=data.permits||permits;
+        if (Array.isArray(data.violations)) violations=data.violations;
+        GH.lastHash=hash; render();
         updateSyncStatus('Updated · '+new Date().toLocaleTimeString(),'ok');
       }
     } catch(e) {}
@@ -3677,9 +3679,9 @@ function saveViolation() {
 function renderViolationCharts() {
   renderViolPermitStats();
   const sel = document.getElementById('viol-donut-select');
-  renderViolDonut(sel ? sel.value : 'discipline');
-  renderBarChart();
-  renderTaskPermitChart();
+  try { renderViolDonut(sel ? sel.value : 'discipline'); } catch(e) { console.error('renderViolDonut error:', e); }
+  try { renderBarChart(); } catch(e) {}
+  try { renderTaskPermitChart(); } catch(e) {}
   _renderViolTable();
 }
 
@@ -3925,8 +3927,8 @@ function renderViolDonut(metric) {
     const x2=cx+R*Math.cos(endAng),   y2=cy+R*Math.sin(endAng);
     const xi1=cx+Ri*Math.cos(startAng), yi1=cy+Ri*Math.sin(startAng);
     const xi2=cx+Ri*Math.cos(endAng),   yi2=cy+Ri*Math.sin(endAng);
-    const _ek = JSON.stringify(key);
-    paths += `<path d="M${xi1.toFixed(1)},${yi1.toFixed(1)} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${Ri},${Ri},0,${large},0,${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${col}" stroke="white" stroke-width="1.5" style="cursor:pointer" onclick="openPermitsByViolation(${_ek},'${metric}')" onmouseover="this.style.opacity='.78'" onmouseout="this.style.opacity='1'"><title>${key}: ${n} — click to view permits</title></path>`;
+    const _ek = key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    paths += `<path d="M${xi1.toFixed(1)},${yi1.toFixed(1)} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${Ri},${Ri},0,${large},0,${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${col}" stroke="white" stroke-width="1.5" style="cursor:pointer" onclick="openPermitsByViolation('${_ek}','${metric}')" onmouseover="this.style.opacity='.78'" onmouseout="this.style.opacity='1'"><title>${key}: ${n} — click to view permits</title></path>`;
     if (pct > 0.08) {
       const mid = startAng + ang/2;
       const labelR = (R + Ri) / 2;  // midpoint of ring band
