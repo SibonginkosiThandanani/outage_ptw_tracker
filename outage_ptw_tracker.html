@@ -3348,7 +3348,7 @@ function startAutoRefresh() {
 
 // ── Manual Export / Import ──────────────────────────
 function exportDataJSON() {
-  const blob = new Blob([JSON.stringify({version:7,savedAt:new Date().toISOString(),tasks,permits},null,2)],{type:'application/json'});
+  const blob = new Blob([JSON.stringify({version:7,savedAt:new Date().toISOString(),tasks,permits,violations},null,2)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='outage-data.json'; a.click();
 }
 
@@ -3670,6 +3670,10 @@ function saveViolation() {
     dueDate: isAdmin ? document.getElementById('vf-closing-date').value : ''
   });
   closeAll();
+  render();
+  if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
+    renderViolationCharts();
+  }
   scheduleAutoSave();
   alert('\u2713 Violation logged successfully.');
 }
