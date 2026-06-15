@@ -1917,7 +1917,12 @@ function viewPermit(pid) {
   const _e = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   let _vh = `<div class="violation-section"><div class="violation-section-title">&#9888;&#65039; Violations Logged (${_pv.length})</div>`;
   if (!_pv.length) { _vh += `<p style="font-size:11px;color:#aaa;font-style:italic;margin:0">No violations logged for this permit.</p>`; }
-  else { _pv.forEach(v => { _vh += `<div class="violation-item"><div class="violation-item-hdr"><span class="violation-badge">${_e(v.category||'Unknown')}</span><span style="font-size:10px;color:#888">${_e(v.date||'')}</span></div>${v.subcategory?`<div style="font-size:10px;color:#666;margin-bottom:3px">&#8627; ${_e(v.subcategory)}</div>`:''}<div class="violation-desc">${_e(v.description||'')}</div></div>`; }); }
+  else { _pv.forEach(v => {
+    const _editBtn = isAdmin
+      ? `<button onclick="openEditViolation('${v.id}')" style="margin-left:auto;background:#1e3a5f;color:#fff;border:none;border-radius:4px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0">✏️ Edit</button>`
+      : '';
+    _vh += `<div class="violation-item"><div class="violation-item-hdr" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="violation-badge">${_e(v.category||'Unknown')}</span><span style="font-size:10px;color:#888">${_e(v.date||'')}</span>${_editBtn}</div>${v.subcategory?`<div style="font-size:10px;color:#666;margin-bottom:3px">&#8627; ${_e(v.subcategory)}</div>`:''}<div class="violation-desc">${_e(v.description||'')}</div></div>`;
+  }); }
   _vh += `</div>`;
   _pvb.innerHTML += _vh;
   show("modal-view");
@@ -4073,9 +4078,44 @@ function _renderViolTable() {
   }).join('');
 }
 
+// ── Edit Violation ──
+function openEditViolation(vid) {
+  const v = violations.find(x => x.id === vid);
+  if (!v) return;
+  document.getElementById('ev-id').value           = v.id;
+  document.getElementById('ev-date').value          = v.date || '';
+  document.getElementById('ev-flagged-by').value    = v.flaggedBy || '';
+  document.getElementById('ev-category').value      = v.category || '';
+  document.getElementById('ev-subcategory').value   = v.subcategory || '';
+  document.getElementById('ev-discipline').value    = v.discipline || '';
+  document.getElementById('ev-description').value   = v.description || '';
+  document.getElementById('ev-action-owner').value  = v.actionOwner || '';
+  document.getElementById('ev-due-date').value      = v.dueDate || '';
+  show('modal-edit-violation');
+}
+
+function saveEditViolation() {
+  const vid = document.getElementById('ev-id').value;
+  const v = violations.find(x => x.id === vid);
+  if (!v) return;
+  v.date        = document.getElementById('ev-date').value;
+  v.flaggedBy   = document.getElementById('ev-flagged-by').value.trim();
+  v.category    = document.getElementById('ev-category').value.trim();
+  v.subcategory = document.getElementById('ev-subcategory').value.trim();
+  v.discipline  = document.getElementById('ev-discipline').value.trim();
+  v.description = document.getElementById('ev-description').value.trim();
+  v.actionOwner = document.getElementById('ev-action-owner').value.trim();
+  v.dueDate     = document.getElementById('ev-due-date').value;
+  closeAll();
+  if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
+    renderViolationCharts();
+  }
+  scheduleAutoSave();
+}
+
 // ── GLOBAL EVENTS ──
 document.querySelectorAll(".overlay").forEach(o=>{
-  if(o.id==="modal-permit"||o.id==="modal-edit-permit"||o.id==="modal-violation") return; // these forms only close via button
+  if(o.id==="modal-permit"||o.id==="modal-edit-permit"||o.id==="modal-violation"||o.id==="modal-edit-violation") return; // these forms only close via button
   o.addEventListener("click",e=>{if(e.target===o)closeAll();});
 });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape")closeAll(); });
@@ -4085,6 +4125,28 @@ render();
 spInit();
 </script>
 
+
+<!-- ═══ MODAL — EDIT VIOLATION ═══ -->
+<div class="overlay" id="modal-edit-violation">
+<div class="modal" style="max-width:560px">
+  <h2>✏️ Edit Violation <span style="font-size:12px;font-weight:400;color:#888;margin-left:6px">🛡 Administrator only</span></h2>
+  <input type="hidden" id="ev-id">
+  <div class="form-grid">
+    <div><label class="fl">Date ✱</label><input type="date" id="ev-date"></div>
+    <div><label class="fl">Flagged By</label><input type="text" id="ev-flagged-by" list="dl-ap" placeholder="Enter name…" autocomplete="off"></div>
+    <div class="full"><label class="fl">Violation Category</label><input type="text" id="ev-category" placeholder="e.g. Category 1: Safety violations" autocomplete="off"></div>
+    <div class="full"><label class="fl">Subcategory</label><input type="text" id="ev-subcategory" placeholder="e.g. PPE violation" autocomplete="off"></div>
+    <div class="full"><label class="fl">Discipline / Contractor</label><input type="text" id="ev-discipline" placeholder="e.g. Mechanical" autocomplete="off"></div>
+    <div class="full"><label class="fl">Violation Description ✱</label><textarea id="ev-description" rows="3" placeholder="Describe the violation…" style="width:100%;box-sizing:border-box;resize:vertical;border:1px solid #c5d0f0;border-radius:5px;padding:6px 8px;font-size:12px;font-family:inherit"></textarea></div>
+    <div><label class="fl">Action Owner</label><input type="text" id="ev-action-owner" list="dl-ap" placeholder="Select or type name…" autocomplete="off"></div>
+    <div><label class="fl">Due Date</label><input type="date" id="ev-due-date"></div>
+  </div>
+  <div class="modal-actions">
+    <button class="btn-cancel" onclick="closeAll()">Cancel</button>
+    <button class="btn-save" onclick="saveEditViolation()">💾 Save Changes</button>
+  </div>
+</div>
+</div>
 
 <!-- ═══ MODAL — EDIT MAIN TASK ═══ -->
 <div class="overlay" id="modal-edit-main">
