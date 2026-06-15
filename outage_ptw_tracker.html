@@ -402,7 +402,7 @@ textarea{resize:vertical;min-height:52px}
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px">
     <div id="main-task-search-wrap" style="position:relative;flex:0 0 340px">
       <input id="main-task-search" type="text" autocomplete="off"
-        placeholder="🔍 Search by main task / PTW Number…"
+        placeholder="🔍 Search by main task / PTW / KKS / Equipment…"
         oninput="filterMainTaskSearch(this.value)"
         onfocus="filterMainTaskSearch(this.value)"
         style="width:100%;padding:5px 28px 5px 10px;border:1px solid #3a5f9a;background:#0d1b2e;color:#fff;border-radius:5px;font-size:12px;box-sizing:border-box;outline:none">
@@ -2709,17 +2709,25 @@ function filterMainTaskSearch(q) {
   const taskMatches = mainTasks().filter(t =>
     t.name.toLowerCase().includes(lq) || String(t.id).toLowerCase().includes(lq)
   );
-  // Match permits by PTW number → show parent main task
-  const ptwMatches = [];
+  // Match permits by PTW, KKS, or Equipment Description → show parent main task
+  const permitMatches = [];
   const seenMids = new Set(taskMatches.map(t => String(t.id)));
-  permits.filter(p => p.ptw && String(p.ptw).toLowerCase().includes(lq)).forEach(function(p) {
+  permits.forEach(function(p) {
+    const matchPtw   = p.ptw   && String(p.ptw).toLowerCase().includes(lq);
+    const matchKks   = p.kks   && String(p.kks).toLowerCase().includes(lq);
+    const matchEquip = p.equip && String(p.equip).toLowerCase().includes(lq);
+    if (!matchPtw && !matchKks && !matchEquip) return;
     const mid = String(p.mainTaskId);
-    if (!seenMids.has(mid)) {
-      const mt = mainTasks().find(t => String(t.id) === mid);
-      if (mt) { ptwMatches.push({mt, matchedPtw: p.ptw}); seenMids.add(mid); }
+    if (seenMids.has(mid)) return;
+    const mt = mainTasks().find(t => String(t.id) === mid);
+    if (mt) {
+      const tag = matchPtw ? 'PTW ' + p.ptw : matchKks ? 'KKS: ' + p.kks : p.equip;
+      const color = matchPtw ? '#ffaa66' : matchKks ? '#66ddaa' : '#dd99ff';
+      permitMatches.push({mt, tag, color, ptwNum: matchPtw ? p.ptw : null});
+      seenMids.add(mid);
     }
   });
-  const allResults = taskMatches.map(function(t){ return {mt:t, matchedPtw:null}; }).concat(ptwMatches);
+  const allResults = taskMatches.map(function(t){ return {mt:t, tag:null, color:null, ptwNum:null}; }).concat(permitMatches);
   if (!allResults.length) {
     box.innerHTML = '<div style="padding:8px 12px;color:#888;font-size:12px">No matches</div>';
     box.style.display = 'block';
@@ -2727,12 +2735,12 @@ function filterMainTaskSearch(q) {
   }
   box.innerHTML = allResults.map(function(r) {
     const t = r.mt;
-    const ptw = r.matchedPtw ? '<span style="color:#ffaa66;font-weight:700;margin-left:6px;font-size:10px">PTW ' + r.matchedPtw + '</span>' : '';
-    return '<div onclick="goToMainTask(\'' + t.id + '\',' + (r.matchedPtw ? '\'' + r.matchedPtw + '\'' : 'null') + ')" ' +
+    const badge = r.tag ? '<span style="color:' + r.color + ';font-weight:700;margin-left:6px;font-size:10px">' + r.tag + '</span>' : '';
+    return '<div onclick="goToMainTask(\'' + t.id + '\',' + (r.ptwNum ? '\'' + r.ptwNum + '\'' : 'null') + ')" ' +
       'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;' +
       'white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ' +
       'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">' +
-      '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name + ptw +
+      '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name + badge +
       '</div>';
   }).join('');
   box.style.display = 'block';
@@ -3321,7 +3329,7 @@ function spInit() {
   GH.owner    = cfg.owner    || '';
   GH.repo     = cfg.repo     || '';
   GH.branch   = cfg.branch   || 'main';
-  GH.filePath = cfg.filePath || 'outage-data.json';
+  GH.filePath = 'outage-data.json';
   GH.enabled  = !!(GH.token&&GH.owner&&GH.repo);
   if (GH.enabled) {
     updateSyncStatus('Connecting…','busy');
@@ -3425,7 +3433,7 @@ function saveSPConfig() {
   GH.owner    = document.getElementById('gh-owner').value.trim();
   GH.repo     = document.getElementById('gh-repo').value.trim();
   GH.branch   = document.getElementById('gh-branch').value.trim()||'main';
-  GH.filePath = document.getElementById('gh-filepath').value.trim()||'outage-data.json';
+  GH.filePath = 'outage-data.json';
   GH.fileSha  = null;
   localStorage.setItem('gh_config', JSON.stringify({
     token:GH.token, owner:GH.owner, repo:GH.repo, branch:GH.branch, filePath:GH.filePath
@@ -4201,7 +4209,7 @@ spInit();
     </div>
     <div>
       <label class="fl">File Path in Repo</label>
-      <input type="text" id="gh-filepath" placeholder="outage-data.json">
+      <input type="text" id="gh-filepath" value="outage-data.json" readonly style="opacity:0.6;cursor:not-allowed;background:#1a2e4a">
     </div>
   </div>
   <div id="sp-setup-instructions" class="sp-info" style="margin-top:12px;display:none">
