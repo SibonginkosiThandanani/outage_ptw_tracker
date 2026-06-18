@@ -302,11 +302,11 @@ textarea{resize:vertical;min-height:52px}
 .viol-svg-wrap{overflow-x:auto;overflow-y:hidden}
 .viol-table-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:16px 18px}
 .viol-table-title{font-size:16px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:2px solid #eef0f3;padding-bottom:8px}
-.viol-list-table{width:100%;border-collapse:collapse;font-size:15px}
-.viol-list-table th{background:#1e3a5f;color:#fff;padding:10px 14px;text-align:left;font-size:14px;white-space:nowrap;position:sticky;top:0}
-.viol-list-table td{padding:10px 14px;border-bottom:1px solid #eef0f3;vertical-align:top}
+.viol-list-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.viol-list-table th{background:#1e3a5f;color:#fff;padding:7px 8px;text-align:left;font-size:11px;white-space:nowrap;position:sticky;top:0;overflow:hidden;text-overflow:ellipsis}
+.viol-list-table td{padding:7px 8px;border-bottom:1px solid #eef0f3;vertical-align:top;word-break:break-word}
 .viol-list-table tr:hover td{background:#f5f7ff}
-.viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:3px 10px;font-size:14px;font-weight:700}
+.viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:2px 5px;font-size:11px;font-weight:700;display:inline-block;max-width:100%;word-break:break-word;white-space:normal}
 .btn-save.red{background:#c62828;color:#fff}.btn-save.red:hover{background:#e53935}
 .vf-readonly{background:#f4f6fa;color:#555;cursor:default}
 </style>
@@ -835,10 +835,21 @@ textarea{resize:vertical;min-height:52px}
       <div class="viol-table-title">⚠️ All Logged Violations</div>
       <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
         <table class="viol-list-table">
+          <colgroup>
+            <col style="width:38px">
+            <col style="width:74px">
+            <col style="width:88px">
+            <col style="width:80px">
+            <col style="width:130px">
+            <col style="width:110px">
+            <col><!-- description gets remaining space -->
+            <col style="width:96px">
+            <col style="width:74px">
+          </colgroup>
           <thead><tr>
-            <th>📷</th><th>Date</th><th>Flagged By</th><th>Permit Number</th><th>Scope of Work</th>
-            <th>Category / Subcategory</th>
-            <th style="min-width:200px">Violation Description</th>
+            <th>📷</th><th>Date</th><th>Flagged By</th><th>PTW No.</th><th>Scope of Work</th>
+            <th>Cat. / Subcat.</th>
+            <th>Violation Description</th>
             <th>Action Owner</th>
             <th>Due Date</th>
           </tr></thead>
@@ -4542,11 +4553,11 @@ function _renderViolTable() {
       <td style="white-space:nowrap">${esc(v.date||'—')}</td>
       <td style="white-space:nowrap">${esc(v.flaggedBy||'—')}</td>
       <td style="white-space:nowrap;font-weight:600;color:#1e3a5f">${esc(ptwNum)}</td>
-      <td style="max-width:180px">${esc(scope)}</td>
-      <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<br><span style="font-size:11px;color:#888">&#8627; ${esc(v.subcategory)}</span>`:''}</td>
-      <td style="max-width:250px">${esc(v.description||'—')}</td>
-      <td style="min-width:130px">${ownerCell}</td>
-      <td style="min-width:120px">${dueDateCell}</td>
+      <td>${esc(scope)}</td>
+      <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<div style="font-size:11px;color:#888;margin-top:3px">&#8627; ${esc(v.subcategory)}</div>`:''}</td>
+      <td>${esc(v.description||'—')}</td>
+      <td>${ownerCell}</td>
+      <td>${dueDateCell}</td>
     </tr>`;
   }).join('');
 }
