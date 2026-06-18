@@ -180,7 +180,7 @@ textarea{resize:vertical;min-height:52px}
 .pie-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:7px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;min-width:320px}
 .pie-title{font-size:11px;font-weight:700;color:#1e3a5f;margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;font-family:Arial,sans-serif}
 .pie-legend{display:flex;flex-direction:column;gap:3px;min-width:130px}
-.pie-leg-row{display:flex;align-items:center;gap:5px;font-size:10px;color:#333}
+.pie-leg-row{display:flex;align-items:center;gap:5px;font-size:13px;color:#333}
 .pie-leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
 .pie-leg-val{font-weight:700;margin-left:auto;padding-left:8px}
 .pie-stats-card{flex:1;background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:7px 10px;overflow:hidden;min-width:0}
@@ -297,16 +297,16 @@ textarea{resize:vertical;min-height:52px}
 .row-subhd { background:#e8edf8 !important; }
 .row-subhd td { border-top:1px solid #c5d0f0 !important; }
 .viol-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.viol-chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:12px 14px;overflow:hidden}
-.viol-chart-title{font-size:11px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;border-bottom:1px solid #eef0f3;padding-bottom:5px}
+.viol-chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:16px 18px;overflow:hidden}
+.viol-chart-title{font-size:15px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:1px solid #eef0f3;padding-bottom:6px}
 .viol-svg-wrap{overflow-x:auto;overflow-y:hidden}
-.viol-table-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:12px 14px}
-.viol-table-title{font-size:11px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;border-bottom:2px solid #eef0f3;padding-bottom:6px}
-.viol-list-table{width:100%;border-collapse:collapse;font-size:11px}
-.viol-list-table th{background:#1e3a5f;color:#fff;padding:6px 10px;text-align:left;font-size:10px;white-space:nowrap;position:sticky;top:0}
-.viol-list-table td{padding:6px 10px;border-bottom:1px solid #eef0f3;vertical-align:top}
+.viol-table-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:16px 18px}
+.viol-table-title{font-size:16px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:2px solid #eef0f3;padding-bottom:8px}
+.viol-list-table{width:100%;border-collapse:collapse;font-size:15px}
+.viol-list-table th{background:#1e3a5f;color:#fff;padding:10px 14px;text-align:left;font-size:14px;white-space:nowrap;position:sticky;top:0}
+.viol-list-table td{padding:10px 14px;border-bottom:1px solid #eef0f3;vertical-align:top}
 .viol-list-table tr:hover td{background:#f5f7ff}
-.viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:3px 10px;font-size:14px;font-weight:700}
 .btn-save.red{background:#c62828;color:#fff}.btn-save.red:hover{background:#e53935}
 .vf-readonly{background:#f4f6fa;color:#555;cursor:default}
 </style>
@@ -758,8 +758,8 @@ textarea{resize:vertical;min-height:52px}
 <div id="pg-violations" class="pg">
   <div class="violations-header">
     <div style="text-align:center;flex:1">
-      <div style="font-size:18px;font-weight:900;letter-spacing:2px;color:#fff">PERMIT TO WORK ANALYSIS</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.65);letter-spacing:1px">VIOLATIONS · TRENDS · COMPLIANCE · CORRECTIVE ACTIONS</div>
+      <div style="font-size:30px;font-weight:900;letter-spacing:2px;color:#fff">PERMIT TO WORK ANALYSIS</div>
+      <div style="font-size:15px;color:rgba(255,255,255,.65);letter-spacing:1px">VIOLATIONS · TRENDS · COMPLIANCE · CORRECTIVE ACTIONS</div>
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <button onclick="openPermitListModal('all')" style="padding:5px 12px;border:1px solid rgba(255,255,255,.6);border-radius:14px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;cursor:pointer">📋 All Permits</button>
@@ -770,14 +770,16 @@ textarea{resize:vertical;min-height:52px}
   </div>
   <div class="violations-body">
     <!-- Charts row -->
-    <div style="display:grid;grid-template-columns:0.75fr 2.2fr 1fr;gap:10px">
-      <!-- Permit status donut (left) -->
-      <div class="viol-chart-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px 10px">
-        <div class="viol-chart-title" style="margin:0;border:none;padding:0;align-self:flex-start">Permit Status</div>
-        <svg id="permit-donut-svg" width="130" height="130" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-          <text x="75" y="80" text-anchor="middle" font-size="11" fill="#bbb">Loading...</text>
-        </svg>
-        <div id="permit-donut-legend" style="display:flex;flex-direction:column;gap:7px;font-size:11px;width:100%"></div>
+    <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px">
+      <!-- Permit status donut (left) — matches Violation Analysis layout -->
+      <div class="viol-chart-card" style="display:flex;flex-direction:column;gap:8px">
+        <div class="viol-chart-title" style="margin:0;border:none;padding:0">Permit Status</div>
+        <div style="display:flex;align-items:flex-start;gap:10px;flex:1">
+          <svg id="permit-donut-svg" width="170" height="170" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+            <text x="85" y="90" text-anchor="middle" font-size="13" fill="#bbb">Loading...</text>
+          </svg>
+          <div id="permit-donut-legend" style="display:flex;flex-direction:column;gap:7px;font-size:14px;overflow-y:auto;max-height:200px;min-width:0;flex:1"></div>
+        </div>
       </div>
       <!-- Permit charts (middle - wide) -->
       <div class="viol-chart-card" style="display:flex;flex-direction:column">
@@ -785,16 +787,16 @@ textarea{resize:vertical;min-height:52px}
           <div class="viol-chart-title" id="permit-chart-title" style="margin:0;border:none;padding:0">Permits by Discipline</div>
           <div style="display:flex;gap:5px">
             <button id="permit-toggle-btn" onclick="togglePermitChart()"
-              style="padding:3px 10px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">
+              style="padding:5px 12px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">
               📊 By Task
             </button>
             <button onclick="expandPermitChart()"
-              style="padding:3px 8px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap" title="Expand full view">
+              style="padding:5px 10px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap" title="Expand full view">
               ⛶
             </button>
           </div>
         </div>
-        <div id="bar-chart-wrap" style="width:100%;overflow-y:auto;flex:1;max-height:220px">
+        <div id="bar-chart-wrap" style="width:100%;overflow-y:auto;overflow-x:hidden;flex:1;max-height:220px">
           <svg id="bar-svg" width="300" height="130" xmlns="http://www.w3.org/2000/svg">
             <text x="150" y="85" text-anchor="middle" font-size="11" fill="#aaa">Loading...</text>
           </svg>
@@ -802,17 +804,17 @@ textarea{resize:vertical;min-height:52px}
             <text x="250" y="75" text-anchor="middle" font-size="11" fill="#aaa">Loading...</text>
           </svg>
         </div>
-        <div style="display:flex;gap:10px;padding-top:6px;flex-wrap:wrap">
-          <span style="font-size:10px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#2d6a4f;border-radius:2px"></span>Open</span>
-          <span style="font-size:10px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#b07b1e;border-radius:2px"></span>Suspended</span>
-          <span style="font-size:10px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:10px;height:10px;background:#6b7d8a;border-radius:2px"></span>Closed</span>
+        <div style="display:flex;gap:10px;padding-top:14px;flex-wrap:wrap">
+          <span style="font-size:14px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;background:#2d6a4f;border-radius:2px"></span>Open</span>
+          <span style="font-size:14px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;background:#b07b1e;border-radius:2px"></span>Suspended</span>
+          <span style="font-size:14px;display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;background:#6b7d8a;border-radius:2px"></span>Closed</span>
         </div>
       </div>
       <!-- Violation analysis (right) -->
       <div class="viol-chart-card" style="display:flex;flex-direction:column;gap:8px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div class="viol-chart-title" style="margin:0;border:none;padding:0">Violation Analysis</div>
-          <select id="viol-donut-select" onchange="updateViolDonut()" style="font-size:11px;border:1px solid #c5d0f0;border-radius:5px;padding:3px 8px;color:#1e3a5f;background:#edf2ff;cursor:pointer;font-weight:600">
+          <select id="viol-donut-select" onchange="updateViolDonut()" style="font-size:14px;border:1px solid #c5d0f0;border-radius:5px;padding:4px 10px;color:#1e3a5f;background:#edf2ff;cursor:pointer;font-weight:600">
             <option value="discipline">By Discipline</option>
             <option value="task">By Main Task</option>
             <option value="category">By Category</option>
@@ -822,7 +824,7 @@ textarea{resize:vertical;min-height:52px}
           <svg id="viol-donut-svg" width="170" height="170" viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
             <text x="85" y="90" text-anchor="middle" font-size="11" fill="#bbb">No violations.</text>
           </svg>
-          <div id="viol-donut-legend" style="display:flex;flex-direction:column;gap:5px;font-size:11px;overflow-y:auto;max-height:170px;min-width:0;flex:1"></div>
+          <div id="viol-donut-legend" style="display:flex;flex-direction:column;gap:5px;font-size:14px;overflow-y:auto;max-height:200px;min-width:0;flex:1"></div>
         </div>
       </div>
     </div>
@@ -831,7 +833,7 @@ textarea{resize:vertical;min-height:52px}
       <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
         <table class="viol-list-table">
           <thead><tr>
-            <th>Date</th><th>Flagged By</th><th>Permit Number</th><th>Scope of Work</th>
+            <th>📷</th><th>Date</th><th>Flagged By</th><th>Permit Number</th><th>Scope of Work</th>
             <th>Category / Subcategory</th>
             <th style="min-width:200px">Violation Description</th>
             <th>Action Owner</th>
@@ -921,6 +923,13 @@ textarea{resize:vertical;min-height:52px}
     <div class="full">
       <label class="fl">Violation Description ✱</label>
       <textarea id="vf-description" style="min-height:100px;resize:vertical" placeholder="Describe the violation in detail…"></textarea>
+    </div>
+    <div class="full">
+      <label class="fl">Evidence Photo <span style="font-weight:400;color:#888;font-size:10px">(optional — photo of the violation)</span></label>
+      <input type="file" id="vf-photo" accept="image/*" style="display:block;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #c5d0f0;border-radius:5px;font-size:12px;font-family:inherit;cursor:pointer;background:#f5f7ff" onchange="(function(f){if(f){var r=new FileReader();r.onload=function(e){var p=document.getElementById('vf-photo-preview');var i=document.getElementById('vf-photo-img');i.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}})(this.files[0])">
+      <div id="vf-photo-preview" style="display:none;margin-top:8px;border:1px solid #c5d0f0;border-radius:6px;overflow:hidden;background:#fff;max-width:100%">
+        <img id="vf-photo-img" src="" style="display:block;max-width:100%;max-height:180px;object-fit:contain;background:#fff">
+      </div>
     </div>
     <div class="sec-title">Closing Action <span id="vf-closing-admin-tag" style="display:none;font-size:9px;font-weight:400;background:#1e3a5f;color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;letter-spacing:.5px;vertical-align:middle">🛡 Admin only</span></div>
     <div id="vf-closing-admin-notice" style="display:none;background:#f0f4ff;border:1px solid #c5d0f0;border-radius:6px;padding:6px 10px;font-size:11px;color:#5a6fa8;margin-bottom:4px">
@@ -2221,12 +2230,13 @@ function renderBarChart() {
 
   const COLORS = {open:"#2d6a4f", suspended:"#b07b1e", closed:"#6b7d8a"};
   const TYPES  = ["open","suspended","closed"];
-  const BAR_H  = 22, ROW_GAP = 8;
-  const LEFT_PAD = 130, RIGHT_PAD = 50, TOP_PAD = 8;
+  const BAR_H  = 28, ROW_GAP = 10;
+  const LEFT_PAD = 160, RIGHT_PAD = 55, TOP_PAD = 8;
   const rowH   = BAR_H + ROW_GAP;
   const totalH = TOP_PAD + disciplines.length * rowH;
   const maxTotal = Math.max(1, ...disciplines.map(d => discMap[d].open + discMap[d].suspended + discMap[d].closed));
-  const CHART_W = Math.max(160, (svgEl.parentElement ? svgEl.parentElement.offsetWidth : 300) - LEFT_PAD - RIGHT_PAD - 10);
+  const _cw = svgEl.parentElement ? (svgEl.parentElement.clientWidth || svgEl.parentElement.offsetWidth || 360) : 360;
+  const CHART_W = Math.max(80, _cw - LEFT_PAD - RIGHT_PAD - 4);
   const totalW  = LEFT_PAD + CHART_W + RIGHT_PAD;
   const toW = v => Math.round((v / maxTotal) * CHART_W);
 
@@ -2236,7 +2246,7 @@ function renderBarChart() {
   disciplines.forEach((d, i) => {
     const gy = TOP_PAD + i * rowH;
     const short = d.length > 20 ? d.substring(0,19)+"…" : d;
-    labels += `<text x="${LEFT_PAD-6}" y="${gy+BAR_H/2+4}" text-anchor="end" font-size="9" fill="#333" font-family="Arial,sans-serif">${short}</text>`;
+    labels += `<text x="${LEFT_PAD-6}" y="${gy+BAR_H/2+5}" text-anchor="end" font-size="13" fill="#333" font-family="Arial,sans-serif">${short}</text>`;
     if (i > 0) axes += `<line x1="0" y1="${gy}" x2="${totalW}" y2="${gy}" stroke="#f0f0f0" stroke-width="0.6"/>`;
 
     let startX = LEFT_PAD;
@@ -2250,16 +2260,18 @@ function renderBarChart() {
       const rx = (startX === LEFT_PAD && j === 0) ? 3 : 0;
       const dEnc = d.replace(/'/g,"\'");
       bars += `<rect x="${startX}" y="${gy}" width="${w}" height="${BAR_H}" fill="${COLORS[type]}" rx="${rx}" style="cursor:pointer" onclick="event.stopPropagation();openPermitListByDiscStatus('${dEnc}','${type}')" title="${d} – ${type}: ${v}"/>`;
-      if (w >= 18)
-        bars += `<text x="${startX+w/2}" y="${gy+BAR_H/2+4}" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="Arial,sans-serif" style="pointer-events:none">${v}</text>`;
+      if (w >= 22)
+        bars += `<text x="${startX+w/2}" y="${gy+BAR_H/2+5}" text-anchor="middle" font-size="12" font-weight="700" fill="white" font-family="Arial,sans-serif" style="pointer-events:none">${v}</text>`;
       startX += w;
     });
-    bars += `<text x="${startX+5}" y="${gy+BAR_H/2+4}" text-anchor="start" font-size="11" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif" style="pointer-events:none">${total}</text>`;
+    bars += `<text x="${startX+5}" y="${gy+BAR_H/2+5}" text-anchor="start" font-size="14" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif" style="pointer-events:none">${total}</text>`;
   });
 
-  svgEl.setAttribute("width", totalW);
+  svgEl.setAttribute("width", "100%");
   svgEl.setAttribute("height", totalH);
   svgEl.setAttribute("viewBox", `0 0 ${totalW} ${totalH}`);
+  svgEl.setAttribute("preserveAspectRatio", "none");
+  svgEl.style.display = 'block';
   svgEl.innerHTML = axes + bars + labels;
 }
 
@@ -3141,30 +3153,35 @@ function printAll() {
     const vb = el.getAttribute('viewBox') || ('0 0 ' + (el.getAttribute('width')||w) + ' ' + (el.getAttribute('height')||h));
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + vb + '" width="' + w + '" height="' + h + '" style="display:block">' + el.innerHTML + '</svg>';
   }
+  const _barH = barSvgPTW ? Math.min(parseInt(barSvgPTW.getAttribute('height')||'180'), 220) : 180;
   const ptwHtml = '<div class="pdf-section" style="page-break-before:always">'
     + '<div class="pdf-section-title" style="margin-bottom:14px">PERMIT TO WORK ANALYSIS</div>'
-    + '<div style="display:grid;grid-template-columns:0.7fr 2fr 1fr;gap:16px;align-items:start">'
+    + '<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:12px;align-items:start">'
     // Permit Status donut
-    + '<div style="border:1px solid #e0e4f0;border-radius:8px;padding:12px;text-align:center">'
+    + '<div style="border:1px solid #e0e4f0;border-radius:8px;padding:12px">'
     + '<div style="font-size:10px;font-weight:700;color:#1e3a5f;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Permit Status</div>'
-    + _svgPrint(pDonutEl, 130, 130)
-    + '<div style="margin-top:8px;font-size:9px;text-align:left">' + (pLegendEl ? pLegendEl.innerHTML : '') + '</div>'
+    + '<div style="display:flex;align-items:flex-start;gap:8px">'
+    + _svgPrint(pDonutEl, 120, 120)
+    + '<div style="font-size:9px;flex:1">' + (pLegendEl ? pLegendEl.innerHTML : '') + '</div>'
+    + '</div>'
     + '</div>'
     // Permits by Discipline bar
-    + '<div style="border:1px solid #e0e4f0;border-radius:8px;padding:12px">'
+    + '<div style="border:1px solid #e0e4f0;border-radius:8px;padding:12px;overflow:hidden">'
     + '<div style="font-size:10px;font-weight:700;color:#1e3a5f;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Permits by Discipline</div>'
-    + _svgPrint(barSvgPTW, 440, (barSvgPTW ? parseInt(barSvgPTW.getAttribute('height')||'180') : 180))
-    + '<div style="display:flex;gap:10px;margin-top:6px;font-size:9px">'
+    + _svgPrint(barSvgPTW, 400, _barH)
+    + '<div style="display:flex;gap:10px;margin-top:8px;font-size:9px">'
     + '<span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:8px;background:#2d6a4f;border-radius:2px"></span>Open</span>'
     + '<span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:8px;background:#b07b1e;border-radius:2px"></span>Suspended</span>'
     + '<span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:10px;height:8px;background:#6b7d8a;border-radius:2px"></span>Closed</span>'
     + '</div>'
     + '</div>'
     // Violation Analysis donut
-    + '<div style="border:1px solid #e0e4f0;border-radius:8px;padding:12px;text-align:center">'
+    + '<div style="border:1px solid #e0e4f0;border-radius:8px;padding:12px">'
     + '<div style="font-size:10px;font-weight:700;color:#1e3a5f;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Violation Analysis</div>'
-    + _svgPrint(vDonutEl, 160, 160)
-    + '<div style="margin-top:8px;font-size:9px;text-align:left">' + (vLegendEl ? vLegendEl.innerHTML : '') + '</div>'
+    + '<div style="display:flex;align-items:flex-start;gap:8px">'
+    + _svgPrint(vDonutEl, 120, 120)
+    + '<div style="font-size:9px;flex:1">' + (vLegendEl ? vLegendEl.innerHTML : '') + '</div>'
+    + '</div>'
     + '</div>'
     + '</div>'
     + '</div>';
@@ -3527,12 +3544,13 @@ function renderTaskPermitChart() {
 
   const COLORS = {open:"#2d6a4f", suspended:"#b07b1e", closed:"#6b7d8a"};
   const TYPES  = ["open","suspended","closed"];
-  const BAR_H  = 22, ROW_GAP = 8;
-  const LEFT_PAD = 240, RIGHT_PAD = 50, TOP_PAD = 8;
+  const BAR_H  = 28, ROW_GAP = 10;
+  const LEFT_PAD = 290, RIGHT_PAD = 55, TOP_PAD = 8;
   const rowH   = BAR_H + ROW_GAP;
   const totalH = TOP_PAD + data.length * rowH;
   const maxTotal = Math.max(1, ...data.map(d => d.open+d.suspended+d.closed));
-  const CHART_W = Math.max(160, (svgEl.parentElement ? svgEl.parentElement.offsetWidth : 300) - LEFT_PAD - RIGHT_PAD - 10);
+  const _cw2 = svgEl.parentElement ? (svgEl.parentElement.clientWidth || svgEl.parentElement.offsetWidth || 400) : 400;
+  const CHART_W = Math.max(80, _cw2 - LEFT_PAD - RIGHT_PAD - 4);
   const totalW  = LEFT_PAD + CHART_W + RIGHT_PAD;
   const toW = v => Math.round((v / maxTotal) * CHART_W);
 
@@ -3542,7 +3560,7 @@ function renderTaskPermitChart() {
   data.forEach((d, i) => {
     const gy = TOP_PAD + i * rowH;
     const short = d.label.length > 38 ? d.label.substring(0,37)+"…" : d.label;
-    labels += `<text x="${LEFT_PAD-6}" y="${gy+BAR_H/2+4}" text-anchor="end" font-size="9" fill="#333" font-family="Arial,sans-serif">${short}</text>`;
+    labels += `<text x="${LEFT_PAD-6}" y="${gy+BAR_H/2+5}" text-anchor="end" font-size="13" fill="#333" font-family="Arial,sans-serif">${short}</text>`;
     if (i > 0) axes += `<line x1="0" y1="${gy}" x2="${totalW}" y2="${gy}" stroke="#f0f0f0" stroke-width="0.6"/>`;
 
     let startX = LEFT_PAD;
@@ -3557,16 +3575,18 @@ function renderTaskPermitChart() {
       const w = Math.max(toW(v), 4);
       const rx = (startX === LEFT_PAD) ? 3 : 0;
       bars += `<rect x="${startX}" y="${gy}" width="${w}" height="${BAR_H}" fill="${COLORS[type]}" rx="${rx}" style="cursor:pointer" onclick="event.stopPropagation();openPermitListByTaskStatus(${JSON.stringify(_mid)},'${type}')" title="${d.label} – ${type}: ${v}"/>`;
-      if (w >= 18)
-        bars += `<text x="${startX+w/2}" y="${gy+BAR_H/2+4}" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="Arial,sans-serif" style="pointer-events:none">${v}</text>`;
+      if (w >= 22)
+        bars += `<text x="${startX+w/2}" y="${gy+BAR_H/2+5}" text-anchor="middle" font-size="12" font-weight="700" fill="white" font-family="Arial,sans-serif" style="pointer-events:none">${v}</text>`;
       startX += w;
     });
-    bars += `<text x="${startX+5}" y="${gy+BAR_H/2+4}" text-anchor="start" font-size="11" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif" style="pointer-events:none">${total}</text>`;
+    bars += `<text x="${startX+5}" y="${gy+BAR_H/2+5}" text-anchor="start" font-size="14" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif" style="pointer-events:none">${total}</text>`;
   });
 
-  svgEl.setAttribute("width", totalW);
+  svgEl.setAttribute("width", "100%");
   svgEl.setAttribute("height", totalH);
   svgEl.setAttribute("viewBox", `0 0 ${totalW} ${totalH}`);
+  svgEl.setAttribute("preserveAspectRatio", "none");
+  svgEl.style.display = 'block';
   svgEl.innerHTML = axes + bars + labels;
 }
 
@@ -3706,7 +3726,7 @@ function saveViolation() {
   const desc = document.getElementById('vf-description').value.trim();
   if (!desc) { alert('Please enter a violation description.'); return; }
   const vId = 'V' + (violations.length + 1) + '_' + Date.now().toString(36);
-  violations.push({
+  const newViol = {
     id: vId,
     permitId:   document.getElementById('vf-permit-id').value,
     mainTaskId: document.getElementById('vf-main-task-id').value,
@@ -3717,15 +3737,37 @@ function saveViolation() {
     date, category: cat, subcategory, description: desc,
     flaggedBy: document.getElementById('vf-flagged-by').value.trim(),
     actionOwner: isAdmin ? document.getElementById('vf-closing-assigned').value.trim() : '',
-    dueDate: isAdmin ? document.getElementById('vf-closing-date').value : ''
-  });
-  closeAll();
-  render();
-  if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
-    renderViolationCharts();
+    dueDate: isAdmin ? document.getElementById('vf-closing-date').value : '',
+    photo: ''
+  };
+  function _finishSave(photoData) {
+    newViol.photo = photoData || '';
+    violations.push(newViol);
+    // Reset photo preview
+    const pp = document.getElementById('vf-photo-preview');
+    const pi = document.getElementById('vf-photo-img');
+    const pf = document.getElementById('vf-photo');
+    if (pp) pp.style.display = 'none';
+    if (pi) pi.src = '';
+    if (pf) pf.value = '';
+    closeAll();
+    render();
+    if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
+      renderViolationCharts();
+    }
+    scheduleAutoSave();
+    alert('\u2713 Violation logged successfully.');
   }
-  scheduleAutoSave();
-  alert('\u2713 Violation logged successfully.');
+  const photoInput = document.getElementById('vf-photo');
+  const photoFile = photoInput && photoInput.files && photoInput.files[0];
+  if (photoFile) {
+    const reader = new FileReader();
+    reader.onload = function(e) { _finishSave(e.target.result); };
+    reader.onerror = function() { _finishSave(''); };
+    reader.readAsDataURL(photoFile);
+  } else {
+    _finishSave('');
+  }
 }
 
 // ── Permit Analysis Charts ──
@@ -3748,11 +3790,11 @@ function renderPermitDonut() {
   const susp    = permits.filter(p=>(p.status||'').toLowerCase()==='suspended').length;
   const closed  = permits.filter(p=>(p.status||'').toLowerCase()==='closed').length;
   if (!total) {
-    svgEl.innerHTML = '<text x="75" y="80" text-anchor="middle" font-size="11" fill="#bbb">No permits.</text>';
+    svgEl.innerHTML = '<text x="85" y="90" text-anchor="middle" font-size="13" fill="#bbb">No permits.</text>';
     legEl.innerHTML = '';
     return;
   }
-  const cx=75, cy=75, R=60, Ri=38;
+  const cx=85, cy=85, R=72, Ri=46;
   const SEGS = [
     {label:'Open',      count:open,   color:'#2d6a4f'},
     {label:'Suspended', count:susp,   color:'#b07b1e'},
@@ -3768,17 +3810,18 @@ function renderPermitDonut() {
     const x2 = cx + R * Math.cos(endAng),   y2 = cy + R * Math.sin(endAng);
     const xi1= cx + Ri* Math.cos(startAng), yi1= cy + Ri* Math.sin(startAng);
     const xi2= cx + Ri* Math.cos(endAng),   yi2= cy + Ri* Math.sin(endAng);
+    const _sk = seg.label.toLowerCase();
     if (frac > 0.001 && frac < 0.999) {
-      paths += `<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${Ri},${Ri},0,${large},0,${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${seg.color}"><title>${seg.label}: ${seg.count}</title></path>`;
+      paths += `<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R},0,${large},1,${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${Ri},${Ri},0,${large},0,${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${seg.color}" style="cursor:pointer" onclick="openPermitListModal('${_sk}')" onmouseover="this.style.opacity='.78'" onmouseout="this.style.opacity='1'"><title>${seg.label}: ${seg.count} — click to view</title></path>`;
     } else if (frac >= 0.999) {
       // Full circle
-      paths += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${seg.color}"/><circle cx="${cx}" cy="${cy}" r="${Ri}" fill="white"/>`;
+      paths += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="${seg.color}" style="cursor:pointer" onclick="openPermitListModal('${_sk}')" onmouseover="this.style.opacity='.78'" onmouseout="this.style.opacity='1'"/><circle cx="${cx}" cy="${cy}" r="${Ri}" fill="white" style="pointer-events:none"/>`;
     }
     startAng = endAng;
   });
   // Center text
   paths += `<circle cx="${cx}" cy="${cy}" r="${Ri-1}" fill="white"/>`;
-  paths += `<text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="26" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif">${total}</text>`;
+  paths += `<text x="${cx}" y="${cy+11}" text-anchor="middle" font-size="30" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif">${total}</text>`;
   svgEl.innerHTML = paths;
   legEl.innerHTML = SEGS.map(s => {
     const pct = Math.round(s.count/total*100);
@@ -3922,16 +3965,16 @@ function renderViolPermitStats() {
   const tile = (count, label, color, bgColor, pctVal) =>
     `<div style="background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:12px 10px;text-align:center;border-top:3px solid ${color}">
       <div style="font-size:28px;font-weight:900;color:${color}">${count}</div>
-      <div style="font-size:10px;text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px">${label}</div>
+      <div style="font-size:13px;text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px">${label}</div>
       <div style="background:${bgColor};border-radius:12px;padding:2px 8px;display:inline-block">
         <span style="font-size:13px;font-weight:800;color:${color}">${pctVal}%</span>
-        <span style="font-size:9px;color:#888;margin-left:2px">of total</span>
+        <span style="font-size:12px;color:#888;margin-left:2px">of total</span>
       </div>
     </div>`;
   const tileTotal = (count, label, color) =>
     `<div style="background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:12px 10px;text-align:center;border-top:3px solid ${color}">
       <div style="font-size:28px;font-weight:900;color:${color}">${count}</div>
-      <div style="font-size:10px;text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px">${label}</div>
+      <div style="font-size:13px;text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px">${label}</div>
     </div>`;
   renderPermitDonut();
 }
@@ -3945,9 +3988,32 @@ function openPermitsByViolation(key, metric) {
   const keyFn = metric === 'discipline' ? function(v){ return v.discipline || 'Unknown'; }
               : metric === 'task'       ? function(v){ return v.mainTask   || 'Unknown'; }
               :                           function(v){ return (v.category  || 'Unknown').replace(/^Category \d+: /,''); };
-  const permitIds = new Set(violations.filter(function(v){ return keyFn(v) === key; }).map(function(v){ return String(v.permitId); }));
-  const filtered = permits.filter(function(p){ return permitIds.has(String(p.id)); });
-  _showPermitModal("📋 Permits — Violation: " + key, _buildPermitRows(filtered));
+  const matched = violations.filter(function(v){ return keyFn(v) === key; });
+  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const rows = matched.map(function(v) {
+    const perm = permits.find(function(p){ return String(p.id) === String(v.permitId); });
+    const scope = perm ? (perm.scope || '—') : '—';
+    const ptw   = perm ? (perm.ptw   || v.permitId) : v.permitId;
+    const photoBtn = v.photo
+      ? `<button onclick="event.stopPropagation();viewViolationPhoto('${v.id}')" style="background:#1e3a5f;border:none;border-radius:5px;cursor:pointer;padding:3px 7px;font-size:15px;color:#fff;vertical-align:middle" title="View evidence photo">📷</button>`
+      : `<span style="color:#ccc;font-size:12px">—</span>`;
+    return `<tr style="border-bottom:1px solid #eef0f3">
+      <td style="padding:10px 10px;text-align:center">${photoBtn}</td>
+      <td style="padding:10px 14px;white-space:nowrap;font-weight:600;color:#1e3a5f;font-size:13px">${esc(v.date||'—')}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#2d6a4f;font-weight:600;white-space:nowrap">${esc(ptw)}</td>
+      <td style="padding:10px 14px;font-size:12px;max-width:280px">${esc(scope)}</td>
+      <td style="padding:10px 14px;font-size:12px;max-width:320px;font-style:italic;color:#555">${esc(v.description||'—')}</td>
+    </tr>`;
+  }).join('');
+  const thead = `<thead><tr style="background:#1e3a5f;color:#fff">
+    <th style="padding:9px 10px;font-size:12px">📷</th>
+    <th style="padding:9px 14px;font-size:12px;white-space:nowrap">Date</th>
+    <th style="padding:9px 14px;font-size:12px;white-space:nowrap">PTW No.</th>
+    <th style="padding:9px 14px;font-size:12px">Scope of Work</th>
+    <th style="padding:9px 14px;font-size:12px">Violation Description</th>
+  </tr></thead>`;
+  const html = `<table style="width:100%;border-collapse:collapse">${thead}<tbody>${rows||'<tr><td colspan="5" style="padding:20px;text-align:center;color:#aaa">No violations found.</td></tr>'}</tbody></table>`;
+  _showPermitModal('⚠️ Violations — ' + key, html);
 }
 
 function renderViolDonut(metric) {
@@ -3986,15 +4052,15 @@ function renderViolDonut(metric) {
     if (pct > 0.08) {
       const mid = startAng + ang/2;
       const labelR = (R + Ri) / 2;  // midpoint of ring band
-      paths += `<text x="${(cx+labelR*Math.cos(mid)).toFixed(1)}" y="${(cy+labelR*Math.sin(mid)+4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="Arial,sans-serif">${n}</text>`;
+      paths += `<text x="${(cx+labelR*Math.cos(mid)).toFixed(1)}" y="${(cy+labelR*Math.sin(mid)+5).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="Arial,sans-serif">${n}</text>`;
     }
     startAng = endAng;
     const lbl = key;
-    legend += `<div style="display:flex;align-items:center;gap:5px"><span style="width:11px;height:11px;min-width:11px;background:${col};border-radius:2px"></span><span style="flex:1;font-size:10px;color:#333">${lbl}</span><span style="font-weight:700;font-size:11px;color:#1e3a5f;padding-left:4px">${n}</span></div>`;
+    legend += `<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="width:14px;height:14px;min-width:14px;background:${col};border-radius:2px"></span><span style="flex:1;font-size:13px;color:#333">${lbl}</span><span style="font-weight:700;font-size:13px;color:#1e3a5f;padding-left:4px">${n}</span></div>`;
   });
   paths += `<circle cx="${cx}" cy="${cy}" r="${Ri}" fill="white"/>`;
-  paths += `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="20" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif">${total}</text>`;
-  paths += `<text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="9" fill="#888" font-family="Arial,sans-serif">violations</text>`;
+  paths += `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="22" font-weight="900" fill="#1e3a5f" font-family="Arial,sans-serif">${total}</text>`;
+  paths += `<text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="13" fill="#888" font-family="Arial,sans-serif">violations</text>`;
   svgEl.innerHTML = paths;
   legEl.innerHTML = legend;
 }
@@ -4010,7 +4076,7 @@ function _renderViolBar(svgId, keyFn) {
   const counts = {};
   violations.forEach(v => { const k = keyFn(v); counts[k] = (counts[k]||0)+1; });
   const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const BAR_H=24, ROW_GAP=6, LEFT_PAD=220, RIGHT_PAD=36, TOP_PAD=6, BTMPAD=4;
+  const BAR_H=34, ROW_GAP=8, LEFT_PAD=260, RIGHT_PAD=44, TOP_PAD=8, BTMPAD=6;
   const rowH   = BAR_H + ROW_GAP;
   const maxVal = Math.max(1, ...sorted.map(([,v]) => v));
   const wrap   = svgEl.parentElement;
@@ -4025,12 +4091,12 @@ function _renderViolBar(svgId, keyFn) {
     const col = PALETTE[i % PALETTE.length];
     const bw  = toW(val);
     const lbl = key;
-    out += `<text x="${LEFT_PAD-5}" y="${gy+BAR_H/2+4}" text-anchor="end" font-size="9.5" fill="#444" font-family="Arial,sans-serif">${lbl}</text>`;
+    out += `<text x="${LEFT_PAD-8}" y="${gy+BAR_H/2+5}" text-anchor="end" font-size="13" fill="#444" font-family="Arial,sans-serif">${lbl}</text>`;
     out += `<rect x="${LEFT_PAD}" y="${gy}" width="${bw}" height="${BAR_H}" fill="${col}" rx="3"><title>${key}: ${val}</title></rect>`;
-    if (bw >= 22) {
-      out += `<text x="${LEFT_PAD+bw/2}" y="${gy+BAR_H/2+4}" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="Arial,sans-serif">${val}</text>`;
+    if (bw >= 28) {
+      out += `<text x="${LEFT_PAD+bw/2}" y="${gy+BAR_H/2+5}" text-anchor="middle" font-size="13" font-weight="700" fill="white" font-family="Arial,sans-serif">${val}</text>`;
     } else {
-      out += `<text x="${LEFT_PAD+bw+5}" y="${gy+BAR_H/2+4}" text-anchor="start" font-size="10" font-weight="700" fill="#1e3a5f" font-family="Arial,sans-serif">${val}</text>`;
+      out += `<text x="${LEFT_PAD+bw+6}" y="${gy+BAR_H/2+5}" text-anchor="start" font-size="13" font-weight="700" fill="#1e3a5f" font-family="Arial,sans-serif">${val}</text>`;
     }
   });
   svgEl.setAttribute('width', totalW);
@@ -4046,11 +4112,34 @@ function updateViolField(violId, field, value) {
   scheduleAutoSave();
 }
 
+function viewViolationPhoto(vid) {
+  const v = violations.find(x => x.id === vid);
+  if (!v || !v.photo) return;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  overlay.title = 'Click to close';
+  overlay.onclick = function() { document.body.removeChild(overlay); };
+  const box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:10px;padding:12px;box-shadow:0 8px 40px rgba(0,0,0,.6);max-width:90vw;max-height:90vh;overflow:auto;cursor:default';
+  box.onclick = function(e) { e.stopPropagation(); };
+  const img = document.createElement('img');
+  img.src = v.photo;
+  img.style.cssText = 'display:block;max-width:80vw;max-height:75vh;border-radius:6px;background:#fff';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕ Close';
+  closeBtn.style.cssText = 'margin-top:8px;display:block;width:100%;padding:6px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700';
+  closeBtn.onclick = function() { document.body.removeChild(overlay); };
+  box.appendChild(img);
+  box.appendChild(closeBtn);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
 function _renderViolTable() {
   const body = document.getElementById('viol-table-body');
   if (!body) return;
   if (!violations.length) {
-    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#aaa;padding:20px;font-style:italic">No violations recorded.</td></tr>';
+    body.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#aaa;padding:20px;font-style:italic">No violations recorded.</td></tr>';
     return;
   }
   const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -4065,13 +4154,17 @@ function _renderViolTable() {
     const dueDateCell = isAdmin
       ? `<input type="date" value="${esc(v.dueDate||'')}" style="${editStyle}" onchange="updateViolField('${v.id}','dueDate',this.value)">`
       : esc(v.dueDate || '—');
+    const photoCell = v.photo
+      ? `<button onclick="viewViolationPhoto('${v.id}')" style="background:#1e3a5f;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:16px;color:#fff" title="View evidence photo">📷</button>`
+      : `<span style="color:#ccc;font-size:13px">—</span>`;
     return `<tr>
+      <td style="text-align:center">${photoCell}</td>
       <td style="white-space:nowrap">${esc(v.date||'—')}</td>
       <td style="white-space:nowrap">${esc(v.flaggedBy||'—')}</td>
       <td style="white-space:nowrap;font-weight:600;color:#1e3a5f">${esc(ptwNum)}</td>
-      <td style="max-width:180px;font-size:11px">${esc(scope)}</td>
-      <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<br><span style="font-size:10px;color:#888">&#8627; ${esc(v.subcategory)}</span>`:''}</td>
-      <td style="max-width:250px;font-size:11px">${esc(v.description||'—')}</td>
+      <td style="max-width:180px">${esc(scope)}</td>
+      <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<br><span style="font-size:11px;color:#888">&#8627; ${esc(v.subcategory)}</span>`:''}</td>
+      <td style="max-width:250px">${esc(v.description||'—')}</td>
       <td style="min-width:130px">${ownerCell}</td>
       <td style="min-width:120px">${dueDateCell}</td>
     </tr>`;
@@ -4091,6 +4184,17 @@ function openEditViolation(vid) {
   document.getElementById('ev-description').value   = v.description || '';
   document.getElementById('ev-action-owner').value  = v.actionOwner || '';
   document.getElementById('ev-due-date').value      = v.dueDate || '';
+  // Show existing photo if any
+  const evCurr = document.getElementById('ev-photo-current');
+  const evCurrImg = document.getElementById('ev-photo-current-img');
+  const evFile = document.getElementById('ev-photo');
+  if (evFile) evFile.value = '';
+  if (v.photo && evCurr && evCurrImg) {
+    evCurrImg.src = v.photo;
+    evCurr.style.display = 'block';
+  } else if (evCurr) {
+    evCurr.style.display = 'none';
+  }
   show('modal-edit-violation');
 }
 
@@ -4106,11 +4210,24 @@ function saveEditViolation() {
   v.description = document.getElementById('ev-description').value.trim();
   v.actionOwner = document.getElementById('ev-action-owner').value.trim();
   v.dueDate     = document.getElementById('ev-due-date').value;
-  closeAll();
-  if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
-    renderViolationCharts();
+  function _finishEdit(photoData) {
+    if (photoData) v.photo = photoData;
+    closeAll();
+    if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
+      renderViolationCharts();
+    }
+    scheduleAutoSave();
   }
-  scheduleAutoSave();
+  const evFile = document.getElementById('ev-photo');
+  const photoFile = evFile && evFile.files && evFile.files[0];
+  if (photoFile) {
+    const reader = new FileReader();
+    reader.onload = function(e) { _finishEdit(e.target.result); };
+    reader.onerror = function() { _finishEdit(''); };
+    reader.readAsDataURL(photoFile);
+  } else {
+    _finishEdit('');
+  }
 }
 
 // ── GLOBAL EVENTS ──
@@ -4140,6 +4257,13 @@ spInit();
     <div class="full"><label class="fl">Violation Description ✱</label><textarea id="ev-description" rows="3" placeholder="Describe the violation…" style="width:100%;box-sizing:border-box;resize:vertical;border:1px solid #c5d0f0;border-radius:5px;padding:6px 8px;font-size:12px;font-family:inherit"></textarea></div>
     <div><label class="fl">Action Owner</label><input type="text" id="ev-action-owner" list="dl-ap" placeholder="Select or type name…" autocomplete="off"></div>
     <div><label class="fl">Due Date</label><input type="date" id="ev-due-date"></div>
+    <div class="full">
+      <label class="fl">Evidence Photo <span style="font-weight:400;color:#888;font-size:10px">(replace existing photo or add new)</span></label>
+      <div id="ev-photo-current" style="display:none;margin-bottom:6px;border:1px solid #c5d0f0;border-radius:6px;overflow:hidden;background:#fff">
+        <img id="ev-photo-current-img" src="" style="display:block;max-width:100%;max-height:140px;object-fit:contain;background:#fff">
+      </div>
+      <input type="file" id="ev-photo" accept="image/*" style="display:block;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #c5d0f0;border-radius:5px;font-size:12px;font-family:inherit;cursor:pointer;background:#f5f7ff" onchange="(function(f){if(f){var r=new FileReader();r.onload=function(e){var p=document.getElementById('ev-photo-current');var i=document.getElementById('ev-photo-current-img');i.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}})(this.files[0])">
+    </div>
   </div>
   <div class="modal-actions">
     <button class="btn-cancel" onclick="closeAll()">Cancel</button>
