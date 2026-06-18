@@ -399,15 +399,18 @@ textarea{resize:vertical;min-height:52px}
 
 <!-- ═══ TABLE ═══ -->
 <div class="container">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px">
-    <div id="main-task-search-wrap" style="position:relative;flex:0 0 340px">
-      <input id="main-task-search" type="text" autocomplete="off"
-        placeholder="🔍 Search by main task / PTW / KKS / Equipment…"
-        oninput="filterMainTaskSearch(this.value)"
-        onfocus="filterMainTaskSearch(this.value)"
-        style="width:100%;padding:5px 28px 5px 10px;border:1px solid #3a5f9a;background:#0d1b2e;color:#fff;border-radius:5px;font-size:12px;box-sizing:border-box;outline:none">
-      <button onclick="clearMainTaskSearch()" title="Clear" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:13px;cursor:pointer;padding:0;line-height:1">✕</button>
-      <div id="main-task-suggestions" style="display:none;position:absolute;top:calc(100% + 3px);left:0;width:100%;background:#0d1b2e;border:1px solid #3a5f9a;border-radius:5px;z-index:9999;max-height:260px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.5)"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px">
+    <div style="display:flex;align-items:center;gap:6px;flex:1">
+      <!-- Unified search: main task / PTW / KKS / Equipment / Scope / RP -->
+      <div id="main-task-search-wrap" style="position:relative;flex:0 0 420px">
+        <input id="main-task-search" type="text" autocomplete="off"
+          placeholder="🔍 Search task / PTW / KKS / Equipment / Scope / RP…"
+          oninput="filterMainTaskSearch(this.value)"
+          onfocus="filterMainTaskSearch(this.value)"
+          style="width:100%;padding:5px 28px 5px 10px;border:1px solid #3a5f9a;background:#0d1b2e;color:#fff;border-radius:5px;font-size:12px;box-sizing:border-box;outline:none">
+        <button onclick="clearMainTaskSearch()" title="Clear" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:13px;cursor:pointer;padding:0;line-height:1">✕</button>
+        <div id="main-task-suggestions" style="display:none;position:absolute;top:calc(100% + 3px);left:0;width:100%;background:#0d1b2e;border:1px solid #3a5f9a;border-radius:5px;z-index:9999;max-height:360px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.5)"></div>
+      </div>
     </div>
     <button id="btn-dates-toggle" onclick="toggleAllDates()" style="background:#1e3a5f;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap">📅 Show Dates</button>
   </div>
@@ -640,7 +643,7 @@ textarea{resize:vertical;min-height:52px}
   <input type="hidden" id="ep-id">
   <p id="ep-permit-info" style="font-size:11px;color:#888;margin-bottom:4px"></p>
   <div id="ep-restrict-notice" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:7px 12px;margin-bottom:8px;font-size:11px;color:#856404;font-weight:600">
-    🔒 Limited editing — only <strong>Date Closed</strong>, <strong>AP Responsible for Closing</strong> and <strong>PTW Status</strong> can be changed. Log in as Administrator to edit all fields.
+    🔒 Limited editing — <strong>Main Task</strong>, <strong>PTW Number</strong>, <strong>Scope of Work</strong> and <strong>Discipline</strong> are editable. Log in as Administrator to edit all fields.
   </div>
   <div class="form-grid">
     <div class="sec-title" style="border-top:none;padding-top:0;margin-top:0">Location</div>
@@ -925,11 +928,9 @@ textarea{resize:vertical;min-height:52px}
       <textarea id="vf-description" style="min-height:100px;resize:vertical" placeholder="Describe the violation in detail…"></textarea>
     </div>
     <div class="full">
-      <label class="fl">Evidence Photo <span style="font-weight:400;color:#888;font-size:10px">(optional — photo of the violation)</span></label>
-      <input type="file" id="vf-photo" accept="image/*" style="display:block;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #c5d0f0;border-radius:5px;font-size:12px;font-family:inherit;cursor:pointer;background:#f5f7ff" onchange="(function(f){if(f){var r=new FileReader();r.onload=function(e){var p=document.getElementById('vf-photo-preview');var i=document.getElementById('vf-photo-img');i.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}})(this.files[0])">
-      <div id="vf-photo-preview" style="display:none;margin-top:8px;border:1px solid #c5d0f0;border-radius:6px;overflow:hidden;background:#fff;max-width:100%">
-        <img id="vf-photo-img" src="" style="display:block;max-width:100%;max-height:180px;object-fit:contain;background:#fff">
-      </div>
+      <label class="fl">Evidence Photos <span style="font-weight:400;color:#888;font-size:10px">(optional — select one or more photos)</span></label>
+      <input type="file" id="vf-photo" accept="image/*" multiple style="display:block;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #c5d0f0;border-radius:5px;font-size:12px;font-family:inherit;cursor:pointer;background:#f5f7ff" onchange="previewVfPhotos(this)">
+      <div id="vf-photo-preview-grid" style="display:none;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
     </div>
     <div class="sec-title">Closing Action <span id="vf-closing-admin-tag" style="display:none;font-size:9px;font-weight:400;background:#1e3a5f;color:#fff;border-radius:10px;padding:1px 8px;margin-left:6px;letter-spacing:.5px;vertical-align:middle">🛡 Admin only</span></div>
     <div id="vf-closing-admin-notice" style="display:none;background:#f0f4ff;border:1px solid #c5d0f0;border-radius:6px;padding:6px 10px;font-size:11px;color:#5a6fa8;margin-bottom:4px">
@@ -1936,7 +1937,7 @@ function viewPermit(pid) {
   _pvb.innerHTML += _vh;
   show("modal-view");
   const _eb = document.querySelector("#modal-view .btn-edit-pm");
-  if (_eb) _eb.style.display = (p.status === "Closed") ? "none" : "";
+  if (_eb) _eb.style.display = "";
 }
 
 function setApClosing(pid, val) {
@@ -1946,8 +1947,8 @@ function setApClosing(pid, val) {
 
 // ── EDIT PERMIT ──
 // Fields that only admins can edit
-const EP_ADMIN_FIELDS = ["ep-main-task","ep-date","ep-time","ep-equip","ep-kks","ep-system",
-  "ep-scope","ep-discipline","ep-ptw","ep-lob","ep-crossref","ep-rp-key","ep-ap-key","ep-ap","ep-rp",
+const EP_ADMIN_FIELDS = ["ep-date","ep-time","ep-equip","ep-kks","ep-system",
+  "ep-lob","ep-crossref","ep-rp-key","ep-ap-key","ep-ap","ep-rp",
   "ep-hotwork","ep-hotwork-num","ep-lifting","ep-lifting-num","ep-confined","ep-confined-num","ep-hvoltage","ep-hvoltage-num"];
 
 function _setEpRestricted(restricted) {
@@ -1972,7 +1973,6 @@ function _setEpRestricted(restricted) {
 function editPermit(pid) {
   const p = permits.find(p=>String(p.id)===String(pid));
   if (!p) return;
-  if (!isAdmin && p.status === "Closed") { alert("This permit is Closed and cannot be edited."); return; }
   closeAll();
   // Populate main task dropdown
   document.getElementById("ep-main-task").innerHTML =
@@ -2716,50 +2716,115 @@ function openPermitListByTaskStatus(mid, status) {
 }
 
 
-// ── Main Task Search ──────────────────────────────────────────────────────
+// ── Unified Search (task / PTW / KKS / Equipment / Scope / RP) ───────────
 function filterMainTaskSearch(q) {
   const box = document.getElementById('main-task-suggestions');
   if (!box) return;
   if (!q || !q.trim()) { box.style.display = 'none'; return; }
   const lq = q.toLowerCase();
-  // Match main tasks by name/id
-  const taskMatches = mainTasks().filter(t =>
-    t.name.toLowerCase().includes(lq) || String(t.id).toLowerCase().includes(lq)
-  );
-  // Match permits by PTW, KKS, or Equipment Description → show parent main task
+
+  // Section 1: Main tasks by name/id
+  const taskMatches = mainTasks().filter(function(t) {
+    return t.name.toLowerCase().includes(lq) || String(t.id).toLowerCase().includes(lq);
+  });
+
+  // Section 2: Permits by PTW / KKS / Equipment → group by main task (deduplicated)
   const permitMatches = [];
-  const seenMids = new Set(taskMatches.map(t => String(t.id)));
+  const seenPtwMids = new Set(taskMatches.map(function(t){ return String(t.id); }));
   permits.forEach(function(p) {
     const matchPtw   = p.ptw   && String(p.ptw).toLowerCase().includes(lq);
     const matchKks   = p.kks   && String(p.kks).toLowerCase().includes(lq);
     const matchEquip = p.equip && String(p.equip).toLowerCase().includes(lq);
     if (!matchPtw && !matchKks && !matchEquip) return;
     const mid = String(p.mainTaskId);
-    if (seenMids.has(mid)) return;
-    const mt = mainTasks().find(t => String(t.id) === mid);
+    if (seenPtwMids.has(mid)) return;
+    const mt = mainTasks().find(function(t){ return String(t.id) === mid; });
     if (mt) {
       const tag = matchPtw ? 'PTW ' + p.ptw : matchKks ? 'KKS: ' + p.kks : p.equip;
       const color = matchPtw ? '#ffaa66' : matchKks ? '#66ddaa' : '#dd99ff';
-      permitMatches.push({mt, tag, color, ptwNum: matchPtw ? p.ptw : null});
-      seenMids.add(mid);
+      permitMatches.push({mt: mt, tag: tag, color: color, ptwNum: matchPtw ? p.ptw : null, type: 'ptw'});
+      seenPtwMids.add(mid);
     }
   });
-  const allResults = taskMatches.map(function(t){ return {mt:t, tag:null, color:null, ptwNum:null}; }).concat(permitMatches);
+
+  // Section 3: Permits by Scope / RP → show per-permit result
+  function _hl(text, query) {
+    if (!text) return '';
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text.substring(0, 60) + (text.length > 60 ? '…' : '');
+    const pre  = text.substring(0, idx);
+    const hit  = text.substring(idx, idx + query.length);
+    const post = text.substring(idx + query.length);
+    const preT  = pre.length  > 25 ? '…' + pre.slice(-25)  : pre;
+    const postT = post.length > 25 ? post.slice(0, 25) + '…' : post;
+    return preT + '<span style="background:#f0a500;color:#000;border-radius:2px;padding:0 1px">' + hit + '</span>' + postT;
+  }
+  const scopeRpMatches = [];
+  permits.forEach(function(p) {
+    const matchScope = p.scope && String(p.scope).toLowerCase().includes(lq);
+    const matchRp    = p.rp    && String(p.rp).toLowerCase().includes(lq);
+    if (!matchScope && !matchRp) return;
+    const mid = String(p.mainTaskId);
+    const mt  = mainTasks().find(function(t){ return String(t.id) === mid; });
+    scopeRpMatches.push({p: p, mt: mt, matchScope: matchScope, matchRp: matchRp, type: 'scope'});
+  });
+
+  const allResults = taskMatches.map(function(t){ return {mt:t, tag:null, color:null, ptwNum:null, type:'task'}; })
+    .concat(permitMatches)
+    .concat(scopeRpMatches);
+
   if (!allResults.length) {
     box.innerHTML = '<div style="padding:8px 12px;color:#888;font-size:12px">No matches</div>';
     box.style.display = 'block';
     return;
   }
-  box.innerHTML = allResults.map(function(r) {
-    const t = r.mt;
-    const badge = r.tag ? '<span style="color:' + r.color + ';font-weight:700;margin-left:6px;font-size:10px">' + r.tag + '</span>' : '';
-    return '<div onclick="goToMainTask(\'' + t.id + '\',' + (r.ptwNum ? '\'' + r.ptwNum + '\'' : 'null') + ')" ' +
-      'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;' +
-      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis" ' +
-      'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">' +
-      '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name + badge +
-      '</div>';
-  }).join('');
+
+  let html = '';
+
+  // Task / PTW / KKS / Equipment results
+  const taskPtwResults = allResults.filter(function(r){ return r.type === 'task' || r.type === 'ptw'; });
+  if (taskPtwResults.length) {
+    html += '<div style="padding:4px 10px 2px;font-size:10px;color:#7a9acc;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #1a2e4a;text-transform:uppercase">Tasks / Permits</div>';
+    html += taskPtwResults.map(function(r) {
+      const t = r.mt;
+      const badge = r.tag ? '<span style="color:' + r.color + ';font-weight:700;margin-left:6px;font-size:10px">' + r.tag + '</span>' : '';
+      return '<div onclick="goToMainTask(\'' + t.id + '\',' + (r.ptwNum ? '\'' + r.ptwNum + '\'' : 'null') + ')" '
+        + 'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" '
+        + 'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">'
+        + '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name + badge
+        + '</div>';
+    }).join('');
+  }
+
+  // Scope / RP results
+  if (scopeRpMatches.length) {
+    html += '<div style="padding:4px 10px 2px;font-size:10px;color:#66ddaa;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #1a2e4a;text-transform:uppercase">Scope / RP Matches</div>';
+    html += scopeRpMatches.map(function(r) {
+      const p  = r.p;
+      const mt = r.mt;
+      const ptw = p.ptw || p.id;
+      const scopeLine = r.matchScope && p.scope
+        ? '<div style="font-size:11px;color:#aac4ff;margin-top:2px">📋 ' + _hl(p.scope, q) + '</div>'
+        : '';
+      const rpLine = r.matchRp && p.rp
+        ? '<div style="font-size:11px;color:#88ddaa;margin-top:2px">👤 RP: ' + _hl(p.rp, q) + '</div>'
+        : '';
+      const taskLabel = mt
+        ? '<span style="font-size:10px;color:#7a9acc;margin-left:6px">' + mt.id + ' ' + mt.name.substring(0, 28) + (mt.name.length > 28 ? '…' : '') + '</span>'
+        : '';
+      return '<div onclick="goToScopeRpResult(\'' + p.id + '\',\'' + String(p.mainTaskId) + '\')" '
+        + 'style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #1a2e4a;user-select:none" '
+        + 'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">'
+        + '<div style="display:flex;align-items:baseline;gap:4px">'
+        + '<span style="color:#f0a500;font-weight:700;font-size:12px">' + ptw + '</span>'
+        + taskLabel
+        + '</div>'
+        + scopeLine + rpLine
+        + '</div>';
+    }).join('');
+  }
+
+  box.innerHTML = html;
   box.style.display = 'block';
 }
 
@@ -2813,6 +2878,131 @@ document.addEventListener('click', function(e) {
   const wrap = document.getElementById('main-task-search-wrap');
   if (wrap && !wrap.contains(e.target)) {
     const box = document.getElementById('main-task-suggestions');
+    if (box) box.style.display = 'none';
+  }
+});
+
+// ── Scope / RP Search ─────────────────────────────────────────────────────
+function filterScopeRpSearch(q) {
+  const box = document.getElementById('scope-rp-suggestions');
+  if (!box) return;
+  if (!q || !q.trim()) { box.style.display = 'none'; return; }
+  const lq = q.toLowerCase();
+
+  const matched = [];
+  permits.forEach(function(p) {
+    const matchScope = p.scope && String(p.scope).toLowerCase().includes(lq);
+    const matchRp    = p.rp    && String(p.rp).toLowerCase().includes(lq);
+    if (!matchScope && !matchRp) return;
+    const mid = String(p.mainTaskId);
+    const mt  = mainTasks().find(function(t){ return String(t.id) === mid; });
+    matched.push({ p: p, mt: mt, matchScope: matchScope, matchRp: matchRp });
+  });
+
+  if (!matched.length) {
+    box.innerHTML = '<div style="padding:8px 12px;color:#888;font-size:12px">No matches</div>';
+    box.style.display = 'block';
+    return;
+  }
+
+  // Helper: highlight the matching substring in a string
+  function _hl(text, query) {
+    if (!text) return '';
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text.substring(0, 60) + (text.length > 60 ? '…' : '');
+    const pre  = text.substring(0, idx);
+    const hit  = text.substring(idx, idx + query.length);
+    const post = text.substring(idx + query.length);
+    const preT  = pre.length  > 30 ? '…' + pre.slice(-30)  : pre;
+    const postT = post.length > 30 ? post.slice(0, 30) + '…' : post;
+    return preT + '<span style="background:#f0a500;color:#000;border-radius:2px;padding:0 1px">' + hit + '</span>' + postT;
+  }
+
+  box.innerHTML = matched.map(function(r) {
+    const p  = r.p;
+    const mt = r.mt;
+    const ptw = p.ptw || p.id;
+
+    const scopeLine = r.matchScope && p.scope
+      ? '<div style="font-size:11px;color:#aac4ff;margin-top:2px">📋 ' + _hl(p.scope, q) + '</div>'
+      : '';
+    const rpLine = r.matchRp && p.rp
+      ? '<div style="font-size:11px;color:#88ddaa;margin-top:2px">👤 RP: ' + _hl(p.rp, q) + '</div>'
+      : '';
+    const taskLabel = mt
+      ? '<span style="font-size:10px;color:#7a9acc;margin-left:6px">' + mt.id + ' ' + mt.name.substring(0, 30) + (mt.name.length > 30 ? '…' : '') + '</span>'
+      : '';
+
+    return '<div onclick="goToScopeRpResult(\'' + p.id + '\',\'' + String(p.mainTaskId) + '\')" '
+      + 'style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #1a2e4a;user-select:none" '
+      + 'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">'
+      + '<div style="display:flex;align-items:baseline;gap:4px">'
+      + '<span style="color:#f0a500;font-weight:700;font-size:12px">' + ptw + '</span>'
+      + taskLabel
+      + '</div>'
+      + scopeLine + rpLine
+      + '</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function goToScopeRpResult(pid, mid) {
+  const box = document.getElementById('main-task-suggestions');
+  if (box) box.style.display = 'none';
+  const p = permits.find(function(x){ return String(x.id) === String(pid); });
+  if (!p) return;
+  const inp = document.getElementById('main-task-search');
+  if (inp) inp.value = p.ptw ? 'PTW ' + p.ptw : p.scope ? p.scope.substring(0, 40) : pid;
+
+  function _highlight() {
+    const row = document.querySelector('tr.row-permit[data-pid="' + pid + '"]');
+    if (!row) return;
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.style.background = '#d4edff';
+    row.style.outline = '2px solid #2d5186';
+    row.style.outlineOffset = '-1px';
+    setTimeout(function(){ row.style.background = ''; row.style.outline = ''; row.style.outlineOffset = ''; }, 2500);
+  }
+
+  const alreadyVisible = document.querySelector('tr.row-permit[data-pid="' + pid + '"]');
+  if (!alreadyVisible) {
+    togglePermits(mid);
+    setTimeout(_highlight, 130);
+  } else {
+    _highlight();
+  }
+}
+
+function toggleScopeRpSearch() {
+  const wrap = document.getElementById('scope-rp-search-wrap');
+  const btn  = document.getElementById('scope-rp-toggle-btn');
+  if (!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  if (isOpen) {
+    wrap.style.display = 'none';
+    if (btn) { btn.style.background = '#0d1b2e'; btn.style.color = '#7a9acc'; }
+    clearScopeRpSearch();
+  } else {
+    wrap.style.display = 'flex';
+    if (btn) { btn.style.background = '#1e3a5f'; btn.style.color = '#fff'; }
+    setTimeout(function() {
+      const inp = document.getElementById('scope-rp-search');
+      if (inp) inp.focus();
+    }, 50);
+  }
+}
+
+function clearScopeRpSearch() {
+  const inp = document.getElementById('scope-rp-search');
+  if (inp) inp.value = '';
+  const box = document.getElementById('scope-rp-suggestions');
+  if (box) box.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('scope-rp-search-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const box = document.getElementById('scope-rp-suggestions');
     if (box) box.style.display = 'none';
   }
 });
@@ -3265,7 +3455,52 @@ function printAll() {
       +'</table></div>'
     : '';
 
-  printArea.innerHTML = ptwHtml + permitListHtml;
+  // ══ Violations table ══
+  const violationsHtml = violations.length
+    ? '<div class="pdf-section" style="page-break-before:always">'
+      + '<div class="pdf-section-title" style="margin-bottom:10px">ALL LOGGED VIOLATIONS (' + violations.length + ')</div>'
+      + '<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;table-layout:fixed">'
+      + '<colgroup>'
+      + '<col style="width:60px"><col style="width:90px"><col style="width:70px"><col style="width:140px">'
+      + '<col style="width:110px"><col style="width:90px"><col style="width:200px">'
+      + '<col style="width:90px"><col style="width:60px">'
+      + '</colgroup>'
+      + '<thead><tr style="background:#8b3a3a;color:#fff">'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Date</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Flagged By</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">PTW No.</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Scope of Work</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Category</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Subcategory</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Description</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Action Owner</th>'
+      + '<th style="padding:5px 4px;font-size:8px;text-align:left">Due Date</th>'
+      + '</tr></thead><tbody>'
+      + (function() {
+          var esc2 = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+          return [...violations].reverse().map(function(v, i) {
+            var perm = permits.find(function(p){ return String(p.id) === String(v.permitId); });
+            var ptwNum = perm ? (perm.ptw || v.permitId) : v.permitId;
+            var scope  = perm ? (perm.scope || '') : '';
+            var bg = i % 2 === 0 ? '' : 'background:#fdf2f2';
+            var td = 'padding:4px 5px;font-size:8px;border-bottom:1px solid #f0d8d8;word-break:break-word;vertical-align:top';
+            return '<tr style="' + bg + '">'
+              + '<td style="' + td + ';white-space:nowrap">' + esc2(v.date) + '</td>'
+              + '<td style="' + td + '">' + esc2(v.flaggedBy) + '</td>'
+              + '<td style="' + td + ';font-weight:700;color:#8b3a3a;white-space:nowrap">' + esc2(ptwNum) + '</td>'
+              + '<td style="' + td + '">' + esc2(scope) + '</td>'
+              + '<td style="' + td + '">' + esc2(v.category) + '</td>'
+              + '<td style="' + td + '">' + esc2(v.subcategory) + '</td>'
+              + '<td style="' + td + '">' + esc2(v.description) + '</td>'
+              + '<td style="' + td + '">' + esc2(v.actionOwner) + '</td>'
+              + '<td style="' + td + ';white-space:nowrap">' + esc2(v.dueDate) + '</td>'
+              + '</tr>';
+          }).join('');
+        })()
+      + '</tbody></table></div>'
+    : '';
+
+  printArea.innerHTML = ptwHtml + permitListHtml + violationsHtml;
 
   setTimeout(() => {
     window.print();
@@ -3738,17 +3973,16 @@ function saveViolation() {
     flaggedBy: document.getElementById('vf-flagged-by').value.trim(),
     actionOwner: isAdmin ? document.getElementById('vf-closing-assigned').value.trim() : '',
     dueDate: isAdmin ? document.getElementById('vf-closing-date').value : '',
-    photo: ''
+    photos: [], photo: ''
   };
-  function _finishSave(photoData) {
-    newViol.photo = photoData || '';
+  function _finishSave(photosArr) {
+    newViol.photos = photosArr || [];
+    newViol.photo  = newViol.photos[0] || '';
     violations.push(newViol);
-    // Reset photo preview
-    const pp = document.getElementById('vf-photo-preview');
-    const pi = document.getElementById('vf-photo-img');
+    // Reset photo fields
+    const pg = document.getElementById('vf-photo-preview-grid');
     const pf = document.getElementById('vf-photo');
-    if (pp) pp.style.display = 'none';
-    if (pi) pi.src = '';
+    if (pg) { pg.innerHTML = ''; pg.style.display = 'none'; }
     if (pf) pf.value = '';
     closeAll();
     render();
@@ -3759,15 +3993,24 @@ function saveViolation() {
     alert('\u2713 Violation logged successfully.');
   }
   const photoInput = document.getElementById('vf-photo');
-  const photoFile = photoInput && photoInput.files && photoInput.files[0];
-  if (photoFile) {
+  const files = photoInput && photoInput.files ? Array.from(photoInput.files) : [];
+  if (!files.length) { _finishSave([]); return; }
+  const results = new Array(files.length).fill(null);
+  let done = 0;
+  files.forEach(function(file, i) {
     const reader = new FileReader();
-    reader.onload = function(e) { _finishSave(e.target.result); };
-    reader.onerror = function() { _finishSave(''); };
-    reader.readAsDataURL(photoFile);
-  } else {
-    _finishSave('');
-  }
+    reader.onload = function(e) {
+      results[i] = e.target.result;
+      done++;
+      if (done === files.length) _finishSave(results.filter(Boolean));
+    };
+    reader.onerror = function() {
+      results[i] = '';
+      done++;
+      if (done === files.length) _finishSave(results.filter(Boolean));
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ── Permit Analysis Charts ──
@@ -4112,27 +4355,144 @@ function updateViolField(violId, field, value) {
   scheduleAutoSave();
 }
 
-function viewViolationPhoto(vid) {
-  const v = violations.find(x => x.id === vid);
-  if (!v || !v.photo) return;
+// ── Multi-photo helpers ──
+function _getViolPhotos(v) {
+  if (v.photos && v.photos.length) return v.photos;
+  if (v.photo) return [v.photo];
+  return [];
+}
+
+function previewVfPhotos(input) {
+  const grid = document.getElementById('vf-photo-preview-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const files = Array.from(input.files);
+  if (!files.length) { grid.style.display = 'none'; return; }
+  grid.style.display = 'flex';
+  files.forEach(function(file, i) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:80px;height:80px;flex-shrink:0';
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #c5d0f0';
+      const lbl = document.createElement('div');
+      lbl.textContent = i + 1;
+      lbl.style.cssText = 'position:absolute;bottom:2px;right:4px;background:rgba(0,0,0,.55);color:#fff;font-size:9px;border-radius:3px;padding:0 3px';
+      wrap.appendChild(img); wrap.appendChild(lbl);
+      grid.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let _evPhotosToKeep = [];
+
+function _renderEvPhotoGallery() {
+  const container = document.getElementById('ev-photo-gallery');
+  if (!container) return;
+  container.innerHTML = '';
+  _evPhotosToKeep.forEach(function(src, i) {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;width:80px;height:80px;flex-shrink:0';
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #c5d0f0;cursor:pointer';
+    img.onclick = function() { _showPhotoLightbox([src], 0); };
+    const rmBtn = document.createElement('button');
+    rmBtn.textContent = '✕';
+    rmBtn.title = 'Remove this photo';
+    (function(idx) {
+      rmBtn.onclick = function() {
+        _evPhotosToKeep.splice(idx, 1);
+        _renderEvPhotoGallery();
+      };
+    })(i);
+    rmBtn.style.cssText = 'position:absolute;top:2px;right:2px;background:rgba(180,20,20,.85);color:#fff;border:none;border-radius:3px;padding:1px 4px;font-size:10px;cursor:pointer;font-weight:700';
+    wrap.appendChild(img); wrap.appendChild(rmBtn);
+    container.appendChild(wrap);
+  });
+  container.style.display = _evPhotosToKeep.length ? 'flex' : 'none';
+}
+
+function previewEvNewPhotos(input) {
+  const grid = document.getElementById('ev-photo-new-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const files = Array.from(input.files);
+  if (!files.length) { grid.style.display = 'none'; return; }
+  grid.style.display = 'flex';
+  files.forEach(function(file, i) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative;width:80px;height:80px;flex-shrink:0';
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;border-radius:6px;border:2px solid #66ddaa';
+      const lbl = document.createElement('div');
+      lbl.textContent = '+' + (i + 1);
+      lbl.style.cssText = 'position:absolute;bottom:2px;right:4px;background:rgba(30,90,60,.8);color:#fff;font-size:9px;border-radius:3px;padding:0 3px';
+      wrap.appendChild(img); wrap.appendChild(lbl);
+      grid.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function _showPhotoLightbox(photos, startIdx) {
+  if (!photos || !photos.length) return;
+  let idx = startIdx || 0;
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer';
-  overlay.title = 'Click to close';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer';
   overlay.onclick = function() { document.body.removeChild(overlay); };
   const box = document.createElement('div');
-  box.style.cssText = 'background:#fff;border-radius:10px;padding:12px;box-shadow:0 8px 40px rgba(0,0,0,.6);max-width:90vw;max-height:90vh;overflow:auto;cursor:default';
+  box.style.cssText = 'background:#111;border-radius:10px;padding:14px;max-width:92vw;text-align:center;cursor:default;box-shadow:0 8px 40px rgba(0,0,0,.7)';
   box.onclick = function(e) { e.stopPropagation(); };
+  const counter = document.createElement('div');
+  counter.style.cssText = 'font-size:12px;color:#aaa;margin-bottom:8px;font-family:Arial,sans-serif';
   const img = document.createElement('img');
-  img.src = v.photo;
-  img.style.cssText = 'display:block;max-width:80vw;max-height:75vh;border-radius:6px;background:#fff';
+  img.style.cssText = 'display:block;max-width:80vw;max-height:70vh;border-radius:6px;background:#222';
+  const navRow = document.createElement('div');
+  navRow.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:12px;margin-top:10px';
+  function show(i) {
+    idx = i;
+    img.src = photos[i];
+    counter.textContent = photos.length > 1 ? 'Photo ' + (i + 1) + ' of ' + photos.length : '';
+    if (prevBtn) prevBtn.disabled = (i === 0);
+    if (nextBtn) nextBtn.disabled = (i === photos.length - 1);
+  }
+  let prevBtn = null, nextBtn = null;
+  const btnStyle = 'background:#1e3a5f;color:#fff;border:none;border-radius:5px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700';
+  if (photos.length > 1) {
+    prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Prev';
+    prevBtn.style.cssText = btnStyle;
+    prevBtn.onclick = function() { if (idx > 0) show(idx - 1); };
+    nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next →';
+    nextBtn.style.cssText = btnStyle;
+    nextBtn.onclick = function() { if (idx < photos.length - 1) show(idx + 1); };
+    navRow.appendChild(prevBtn);
+  }
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '✕ Close';
-  closeBtn.style.cssText = 'margin-top:8px;display:block;width:100%;padding:6px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700';
+  closeBtn.style.cssText = btnStyle + ';background:#8b3a3a';
   closeBtn.onclick = function() { document.body.removeChild(overlay); };
-  box.appendChild(img);
-  box.appendChild(closeBtn);
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
+  navRow.appendChild(closeBtn);
+  if (photos.length > 1) navRow.appendChild(nextBtn);
+  box.appendChild(counter); box.appendChild(img); box.appendChild(navRow);
+  overlay.appendChild(box); document.body.appendChild(overlay);
+  show(idx);
+}
+
+function viewViolationPhoto(vid) {
+  const v = violations.find(function(x){ return x.id === vid; });
+  if (!v) return;
+  const photos = _getViolPhotos(v);
+  if (!photos.length) return;
+  _showPhotoLightbox(photos, 0);
 }
 
 function _renderViolTable() {
@@ -4154,8 +4514,9 @@ function _renderViolTable() {
     const dueDateCell = isAdmin
       ? `<input type="date" value="${esc(v.dueDate||'')}" style="${editStyle}" onchange="updateViolField('${v.id}','dueDate',this.value)">`
       : esc(v.dueDate || '—');
-    const photoCell = v.photo
-      ? `<button onclick="viewViolationPhoto('${v.id}')" style="background:#1e3a5f;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:16px;color:#fff" title="View evidence photo">📷</button>`
+    const _vPhotos = _getViolPhotos(v);
+    const photoCell = _vPhotos.length > 0
+      ? `<button onclick="viewViolationPhoto('${v.id}')" style="background:#1e3a5f;border:none;border-radius:6px;cursor:pointer;padding:4px 8px;font-size:15px;color:#fff;white-space:nowrap" title="View evidence photos">📷${_vPhotos.length > 1 ? '<span style="font-size:10px;margin-left:2px">×' + _vPhotos.length + '</span>' : ''}</button>`
       : `<span style="color:#ccc;font-size:13px">—</span>`;
     return `<tr>
       <td style="text-align:center">${photoCell}</td>
@@ -4184,17 +4545,13 @@ function openEditViolation(vid) {
   document.getElementById('ev-description').value   = v.description || '';
   document.getElementById('ev-action-owner').value  = v.actionOwner || '';
   document.getElementById('ev-due-date').value      = v.dueDate || '';
-  // Show existing photo if any
-  const evCurr = document.getElementById('ev-photo-current');
-  const evCurrImg = document.getElementById('ev-photo-current-img');
+  // Load existing photos into gallery
+  _evPhotosToKeep = _getViolPhotos(v).slice();
+  _renderEvPhotoGallery();
   const evFile = document.getElementById('ev-photo');
+  const evNewGrid = document.getElementById('ev-photo-new-grid');
   if (evFile) evFile.value = '';
-  if (v.photo && evCurr && evCurrImg) {
-    evCurrImg.src = v.photo;
-    evCurr.style.display = 'block';
-  } else if (evCurr) {
-    evCurr.style.display = 'none';
-  }
+  if (evNewGrid) { evNewGrid.innerHTML = ''; evNewGrid.style.display = 'none'; }
   show('modal-edit-violation');
 }
 
@@ -4210,8 +4567,9 @@ function saveEditViolation() {
   v.description = document.getElementById('ev-description').value.trim();
   v.actionOwner = document.getElementById('ev-action-owner').value.trim();
   v.dueDate     = document.getElementById('ev-due-date').value;
-  function _finishEdit(photoData) {
-    if (photoData) v.photo = photoData;
+  function _finishEdit(newPhotosArr) {
+    v.photos = _evPhotosToKeep.concat((newPhotosArr || []).filter(Boolean));
+    v.photo  = v.photos[0] || '';
     closeAll();
     if (document.getElementById('page-violations') && document.getElementById('page-violations').style.display !== 'none') {
       renderViolationCharts();
@@ -4219,15 +4577,24 @@ function saveEditViolation() {
     scheduleAutoSave();
   }
   const evFile = document.getElementById('ev-photo');
-  const photoFile = evFile && evFile.files && evFile.files[0];
-  if (photoFile) {
+  const newFiles = evFile && evFile.files ? Array.from(evFile.files) : [];
+  if (!newFiles.length) { _finishEdit([]); return; }
+  const results = new Array(newFiles.length).fill(null);
+  let done = 0;
+  newFiles.forEach(function(file, i) {
     const reader = new FileReader();
-    reader.onload = function(e) { _finishEdit(e.target.result); };
-    reader.onerror = function() { _finishEdit(''); };
-    reader.readAsDataURL(photoFile);
-  } else {
-    _finishEdit('');
-  }
+    reader.onload = function(e) {
+      results[i] = e.target.result;
+      done++;
+      if (done === newFiles.length) _finishEdit(results);
+    };
+    reader.onerror = function() {
+      results[i] = '';
+      done++;
+      if (done === newFiles.length) _finishEdit(results);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // ── GLOBAL EVENTS ──
@@ -4258,11 +4625,10 @@ spInit();
     <div><label class="fl">Action Owner</label><input type="text" id="ev-action-owner" list="dl-ap" placeholder="Select or type name…" autocomplete="off"></div>
     <div><label class="fl">Due Date</label><input type="date" id="ev-due-date"></div>
     <div class="full">
-      <label class="fl">Evidence Photo <span style="font-weight:400;color:#888;font-size:10px">(replace existing photo or add new)</span></label>
-      <div id="ev-photo-current" style="display:none;margin-bottom:6px;border:1px solid #c5d0f0;border-radius:6px;overflow:hidden;background:#fff">
-        <img id="ev-photo-current-img" src="" style="display:block;max-width:100%;max-height:140px;object-fit:contain;background:#fff">
-      </div>
-      <input type="file" id="ev-photo" accept="image/*" style="display:block;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #c5d0f0;border-radius:5px;font-size:12px;font-family:inherit;cursor:pointer;background:#f5f7ff" onchange="(function(f){if(f){var r=new FileReader();r.onload=function(e){var p=document.getElementById('ev-photo-current');var i=document.getElementById('ev-photo-current-img');i.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}})(this.files[0])">
+      <label class="fl">Evidence Photos <span style="font-weight:400;color:#888;font-size:10px">(remove existing or add new photos)</span></label>
+      <div id="ev-photo-gallery" style="display:none;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+      <input type="file" id="ev-photo" accept="image/*" multiple style="display:block;width:100%;box-sizing:border-box;padding:6px 8px;border:1px solid #c5d0f0;border-radius:5px;font-size:12px;font-family:inherit;cursor:pointer;background:#f5f7ff" onchange="previewEvNewPhotos(this)">
+      <div id="ev-photo-new-grid" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
     </div>
   </div>
   <div class="modal-actions">
