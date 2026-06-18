@@ -2728,23 +2728,23 @@ function filterMainTaskSearch(q) {
     return t.name.toLowerCase().includes(lq) || String(t.id).toLowerCase().includes(lq);
   });
 
-  // Section 2: Permits by PTW / KKS / Equipment → group by main task (deduplicated)
+  // Section 2: Permits by PTW / KKS / Equipment → one result per matching permit
   const permitMatches = [];
-  const seenPtwMids = new Set(taskMatches.map(function(t){ return String(t.id); }));
   permits.forEach(function(p) {
     const matchPtw   = p.ptw   && String(p.ptw).toLowerCase().includes(lq);
     const matchKks   = p.kks   && String(p.kks).toLowerCase().includes(lq);
     const matchEquip = p.equip && String(p.equip).toLowerCase().includes(lq);
     if (!matchPtw && !matchKks && !matchEquip) return;
     const mid = String(p.mainTaskId);
-    if (seenPtwMids.has(mid)) return;
     const mt = mainTasks().find(function(t){ return String(t.id) === mid; });
-    if (mt) {
-      const tag = matchPtw ? 'PTW ' + p.ptw : matchKks ? 'KKS: ' + p.kks : p.equip;
-      const color = matchPtw ? '#ffaa66' : matchKks ? '#66ddaa' : '#dd99ff';
-      permitMatches.push({mt: mt, tag: tag, color: color, ptwNum: matchPtw ? p.ptw : null, type: 'ptw'});
-      seenPtwMids.add(mid);
-    }
+    const matchLabel = matchPtw ? 'PTW ' + p.ptw : matchKks ? 'KKS: ' + p.kks : (p.equip || '');
+    const matchColor = matchPtw ? '#ffaa66' : matchKks ? '#66ddaa' : '#dd99ff';
+    permitMatches.push({
+      p: p, mt: mt, mid: mid,
+      matchLabel: matchLabel, matchColor: matchColor,
+      ptwNum: matchPtw ? p.ptw : null,
+      type: 'ptw'
+    });
   });
 
   // Section 3: Permits by Scope / RP → show per-permit result
@@ -2781,17 +2781,36 @@ function filterMainTaskSearch(q) {
 
   let html = '';
 
-  // Task / PTW / KKS / Equipment results
-  const taskPtwResults = allResults.filter(function(r){ return r.type === 'task' || r.type === 'ptw'; });
-  if (taskPtwResults.length) {
-    html += '<div style="padding:4px 10px 2px;font-size:10px;color:#7a9acc;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #1a2e4a;text-transform:uppercase">Tasks / Permits</div>';
-    html += taskPtwResults.map(function(r) {
+  // Task results (matched by task name/id)
+  const taskOnlyResults = allResults.filter(function(r){ return r.type === 'task'; });
+  if (taskOnlyResults.length) {
+    html += '<div style="padding:4px 10px 2px;font-size:10px;color:#7a9acc;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #1a2e4a;text-transform:uppercase">Tasks</div>';
+    html += taskOnlyResults.map(function(r) {
       const t = r.mt;
-      const badge = r.tag ? '<span style="color:' + r.color + ';font-weight:700;margin-left:6px;font-size:10px">' + r.tag + '</span>' : '';
-      return '<div onclick="goToMainTask(\'' + t.id + '\',' + (r.ptwNum ? '\'' + r.ptwNum + '\'' : 'null') + ')" '
+      return '<div onclick="goToMainTask(\'' + t.id + '\',null)" '
         + 'style="padding:7px 12px;cursor:pointer;font-size:12px;color:#e0e8ff;border-bottom:1px solid #1a2e4a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" '
         + 'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">'
-        + '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name + badge
+        + '<span style="color:#5b8dee;font-weight:700;margin-right:8px">' + t.id + '</span>' + t.name
+        + '</div>';
+    }).join('');
+  }
+
+  // PTW / KKS / Equipment permit results — one row per permit
+  const permitOnlyResults = allResults.filter(function(r){ return r.type === 'ptw'; });
+  if (permitOnlyResults.length) {
+    html += '<div style="padding:4px 10px 2px;font-size:10px;color:#ffaa66;font-weight:700;letter-spacing:.5px;border-bottom:1px solid #1a2e4a;text-transform:uppercase">Permits (' + permitOnlyResults.length + ')</div>';
+    html += permitOnlyResults.map(function(r) {
+      const p  = r.p;
+      const mt = r.mt;
+      const taskLabel = mt
+        ? '<span style="font-size:10px;color:#7a9acc;margin-left:8px">' + mt.id + ' ' + mt.name.substring(0, 30) + (mt.name.length > 30 ? '…' : '') + '</span>'
+        : '';
+      const equipInfo = p.equip ? '<span style="font-size:10px;color:#aaa;margin-left:6px">' + p.equip.substring(0, 35) + '</span>' : '';
+      return '<div onclick="goToMainTask(\'' + r.mid + '\',' + (r.ptwNum ? '\'' + r.ptwNum + '\'' : 'null') + ')" '
+        + 'style="padding:7px 12px;cursor:pointer;border-bottom:1px solid #1a2e4a;user-select:none" '
+        + 'onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'\'">'
+        + '<span style="color:' + r.matchColor + ';font-weight:700;font-size:12px">' + r.matchLabel + '</span>'
+        + taskLabel + equipInfo
         + '</div>';
     }).join('');
   }
