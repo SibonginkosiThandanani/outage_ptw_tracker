@@ -3148,6 +3148,10 @@ document.addEventListener('click', e => {
 });
 
 function openPermitListByDisc(disc) {
+  const stdWrap = document.getElementById("permit-list-std-wrap");
+  const altWrap = document.getElementById("permit-list-alt-wrap");
+  if (stdWrap) stdWrap.style.display = '';
+  if (altWrap) { altWrap.innerHTML = ''; altWrap.style.display = 'none'; }
   const body = document.getElementById("permit-list-body");
   const titleEl = document.querySelector("#modal-permit-list h2");
   if (titleEl) titleEl.textContent = "📋 Permit List — " + disc;
@@ -3188,8 +3192,10 @@ function openPermitListByDisc(disc) {
 }
 
 function openPermitListByDiscStatus(disc, status) {
-  // Temporarily filter permits and open modal
-  const _orig = openPermitListModal;
+  const stdWrap = document.getElementById("permit-list-std-wrap");
+  const altWrap = document.getElementById("permit-list-alt-wrap");
+  if (stdWrap) stdWrap.style.display = '';
+  if (altWrap) { altWrap.innerHTML = ''; altWrap.style.display = 'none'; }
   const body = document.getElementById("permit-list-body");
   const titleEl = document.querySelector("#modal-permit-list h2");
   if (titleEl) titleEl.textContent = "📋 Permit List — " + disc + " / " + status.charAt(0).toUpperCase()+status.slice(1);
@@ -4065,8 +4071,13 @@ function renderViolationCharts() {
   renderViolPermitStats();
   const sel = document.getElementById('viol-donut-select');
   try { renderViolDonut(sel ? sel.value : 'discipline'); } catch(e) { console.error('renderViolDonut error:', e); }
+  // Only render and show the currently active permit chart; hide the other
   try { renderBarChart(); } catch(e) {}
   try { renderTaskPermitChart(); } catch(e) {}
+  const _bs = document.getElementById('bar-svg');
+  const _ts = document.getElementById('task-permit-svg');
+  if (_bs) _bs.style.display = _showDisciplineChart ? 'block' : 'none';
+  if (_ts) _ts.style.display = _showDisciplineChart ? 'none' : 'block';
   _renderViolTable();
 }
 
