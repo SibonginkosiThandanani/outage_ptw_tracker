@@ -302,11 +302,12 @@ textarea{resize:vertical;min-height:52px}
 .viol-svg-wrap{overflow-x:auto;overflow-y:hidden}
 .viol-table-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:16px 18px}
 .viol-table-title{font-size:16px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:2px solid #eef0f3;padding-bottom:8px}
-.viol-list-table{width:100%;border-collapse:collapse;font-size:15px}
-.viol-list-table th{background:#1e3a5f;color:#fff;padding:10px 14px;text-align:left;font-size:14px;white-space:nowrap;position:sticky;top:0}
-.viol-list-table td{padding:10px 14px;border-bottom:1px solid #eef0f3;vertical-align:top}
-.viol-list-table tr:hover td{background:#f5f7ff}
-.viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:3px 10px;font-size:14px;font-weight:700}
+.viol-list-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+.viol-list-table th{background:#1e3a5f;color:#fff;padding:8px 7px;text-align:left;font-size:11px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:1;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.viol-list-table td{padding:8px 7px;border-bottom:1px solid #eef0f3;vertical-align:middle;word-break:break-word;line-height:1.4;min-height:36px}
+.viol-list-table tr:nth-child(even) td{background:#f9fafc}
+.viol-list-table tr:hover td{background:#edf2ff}
+.viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:2px 5px;font-size:11px;font-weight:700;display:inline-block;max-width:100%;word-break:break-word;white-space:normal}
 .btn-save.red{background:#c62828;color:#fff}.btn-save.red:hover{background:#e53935}
 .vf-readonly{background:#f4f6fa;color:#555;cursor:default}
 </style>
@@ -835,10 +836,21 @@ textarea{resize:vertical;min-height:52px}
       <div class="viol-table-title">⚠️ All Logged Violations</div>
       <div style="overflow-x:auto;max-height:360px;overflow-y:auto">
         <table class="viol-list-table">
+          <colgroup>
+            <col style="width:4%"><!-- 📷 -->
+            <col style="width:9%"><!-- Date -->
+            <col style="width:10%"><!-- Flagged By -->
+            <col style="width:9%"><!-- PTW No. -->
+            <col style="width:14%"><!-- Scope of Work -->
+            <col style="width:12%"><!-- Cat./Subcat. -->
+            <col style="width:20%"><!-- Violation Description -->
+            <col style="width:12%"><!-- Action Owner -->
+            <col style="width:10%"><!-- Due Date -->
+          </colgroup>
           <thead><tr>
-            <th>📷</th><th>Date</th><th>Flagged By</th><th>Permit Number</th><th>Scope of Work</th>
-            <th>Category / Subcategory</th>
-            <th style="min-width:200px">Violation Description</th>
+            <th>📷</th><th>Date</th><th>Flagged By</th><th>PTW No.</th><th>Scope of Work</th>
+            <th>Cat. / Subcat.</th>
+            <th>Violation Description</th>
             <th>Action Owner</th>
             <th>Due Date</th>
           </tr></thead>
@@ -2631,6 +2643,11 @@ function openPermitListModal(filterStatus) {
   const filtered = (!filterStatus || filterStatus==="all")
     ? permits
     : permits.filter(p=>(p.status||"").toLowerCase()===filterStatus.toLowerCase());
+  // Restore standard table layout (may have been hidden by violation drill-down)
+  const stdWrap2 = document.getElementById("permit-list-std-wrap");
+  const altWrap2 = document.getElementById("permit-list-alt-wrap");
+  if (stdWrap2) stdWrap2.style.display = '';
+  if (altWrap2) { altWrap2.innerHTML = ''; altWrap2.style.display = 'none'; }
   if (!filtered.length) {
     body.innerHTML = `<tr><td colspan="22" class="empty">No ${filterStatus||""} permits.</td></tr>`;
   } else {
@@ -2693,11 +2710,21 @@ function _buildPermitRows(filtered) {
       +"</tr>";
   }).join("");
 }
-function _showPermitModal(title, rows) {
+function _showPermitModal(title, content) {
   const titleEl = document.querySelector("#modal-permit-list h2");
   if (titleEl) titleEl.textContent = title;
   document.querySelectorAll(".plf-btn").forEach(b=>{ b.style.background="#edf2ff"; b.style.color="#1e3a5f"; });
-  document.getElementById("permit-list-body").innerHTML = rows;
+  const stdWrap = document.getElementById("permit-list-std-wrap");
+  const altWrap = document.getElementById("permit-list-alt-wrap");
+  // Full table content → show in alt area to avoid nested-table double-header
+  if (content && content.trim().startsWith('<table')) {
+    if (stdWrap) stdWrap.style.display = 'none';
+    if (altWrap) { altWrap.innerHTML = content; altWrap.style.display = 'block'; }
+  } else {
+    document.getElementById("permit-list-body").innerHTML = content || '';
+    if (stdWrap) stdWrap.style.display = '';
+    if (altWrap) { altWrap.innerHTML = ''; altWrap.style.display = 'none'; }
+  }
   show("modal-permit-list");
 }
 function openPermitListByTaskId(mid) {
@@ -4251,30 +4278,39 @@ function openPermitsByViolation(key, metric) {
               : metric === 'task'       ? function(v){ return v.mainTask   || 'Unknown'; }
               :                           function(v){ return (v.category  || 'Unknown').replace(/^Category \d+: /,''); };
   const matched = violations.filter(function(v){ return keyFn(v) === key; });
-  const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const esc = function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
   const rows = matched.map(function(v) {
-    const perm = permits.find(function(p){ return String(p.id) === String(v.permitId); });
+    const perm  = permits.find(function(p){ return String(p.id) === String(v.permitId); });
     const scope = perm ? (perm.scope || '—') : '—';
     const ptw   = perm ? (perm.ptw   || v.permitId) : v.permitId;
-    const photoBtn = v.photo
-      ? `<button onclick="event.stopPropagation();viewViolationPhoto('${v.id}')" style="background:#1e3a5f;border:none;border-radius:5px;cursor:pointer;padding:3px 7px;font-size:15px;color:#fff;vertical-align:middle" title="View evidence photo">📷</button>`
+    const photos = _getViolPhotos(v);
+    const photoBtn = photos.length
+      ? `<button onclick="event.stopPropagation();viewViolationPhoto('${v.id}')" style="background:#1e3a5f;border:none;border-radius:5px;cursor:pointer;padding:3px 7px;font-size:15px;color:#fff;line-height:1" title="View ${photos.length} photo(s)">📷</button>`
       : `<span style="color:#ccc;font-size:12px">—</span>`;
     return `<tr style="border-bottom:1px solid #eef0f3">
-      <td style="padding:10px 10px;text-align:center">${photoBtn}</td>
-      <td style="padding:10px 14px;white-space:nowrap;font-weight:600;color:#1e3a5f;font-size:13px">${esc(v.date||'—')}</td>
-      <td style="padding:10px 14px;font-size:12px;color:#2d6a4f;font-weight:600;white-space:nowrap">${esc(ptw)}</td>
-      <td style="padding:10px 14px;font-size:12px;max-width:280px">${esc(scope)}</td>
-      <td style="padding:10px 14px;font-size:12px;max-width:320px;font-style:italic;color:#555">${esc(v.description||'—')}</td>
+      <td style="padding:9px 8px;text-align:center;vertical-align:middle">${photoBtn}</td>
+      <td style="padding:9px 10px;white-space:nowrap;font-weight:600;color:#1e3a5f;font-size:12px;vertical-align:middle">${esc(v.date||'—')}</td>
+      <td style="padding:9px 10px;font-size:12px;color:#2d6a4f;font-weight:600;white-space:nowrap;vertical-align:middle">${esc(ptw)}</td>
+      <td style="padding:9px 10px;font-size:12px;vertical-align:middle;word-break:break-word">${esc(scope)}</td>
+      <td style="padding:9px 10px;font-size:12px;font-style:italic;color:#444;vertical-align:middle;word-break:break-word">${esc(v.description||'—')}</td>
     </tr>`;
   }).join('');
-  const thead = `<thead><tr style="background:#1e3a5f;color:#fff">
-    <th style="padding:9px 10px;font-size:12px">📷</th>
-    <th style="padding:9px 14px;font-size:12px;white-space:nowrap">Date</th>
-    <th style="padding:9px 14px;font-size:12px;white-space:nowrap">PTW No.</th>
-    <th style="padding:9px 14px;font-size:12px">Scope of Work</th>
-    <th style="padding:9px 14px;font-size:12px">Violation Description</th>
+  const colgroup = `<colgroup>
+    <col style="width:42px">
+    <col style="width:82px">
+    <col style="width:110px">
+    <col style="width:220px">
+    <col>
+  </colgroup>`;
+  const thead = `<thead><tr style="background:#1e3a5f;color:#fff;position:sticky;top:0;z-index:2">
+    <th style="padding:9px 8px;font-size:11px;font-weight:700;text-align:center">📷</th>
+    <th style="padding:9px 10px;font-size:11px;font-weight:700;white-space:nowrap">Date</th>
+    <th style="padding:9px 10px;font-size:11px;font-weight:700;white-space:nowrap">PTW No.</th>
+    <th style="padding:9px 10px;font-size:11px;font-weight:700">Scope of Work</th>
+    <th style="padding:9px 10px;font-size:11px;font-weight:700">Violation Description</th>
   </tr></thead>`;
-  const html = `<table style="width:100%;border-collapse:collapse">${thead}<tbody>${rows||'<tr><td colspan="5" style="padding:20px;text-align:center;color:#aaa">No violations found.</td></tr>'}</tbody></table>`;
+  const emptyRow = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#aaa;font-size:13px">No violations found.</td></tr>`;
+  const html = `<table style="width:100%;border-collapse:collapse;table-layout:fixed">${colgroup}${thead}<tbody>${rows||emptyRow}</tbody></table>`;
   _showPermitModal('⚠️ Violations — ' + key, html);
 }
 
@@ -4542,11 +4578,11 @@ function _renderViolTable() {
       <td style="white-space:nowrap">${esc(v.date||'—')}</td>
       <td style="white-space:nowrap">${esc(v.flaggedBy||'—')}</td>
       <td style="white-space:nowrap;font-weight:600;color:#1e3a5f">${esc(ptwNum)}</td>
-      <td style="max-width:180px">${esc(scope)}</td>
-      <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<br><span style="font-size:11px;color:#888">&#8627; ${esc(v.subcategory)}</span>`:''}</td>
-      <td style="max-width:250px">${esc(v.description||'—')}</td>
-      <td style="min-width:130px">${ownerCell}</td>
-      <td style="min-width:120px">${dueDateCell}</td>
+      <td>${esc(scope)}</td>
+      <td><span class="viol-cat-badge">${esc(v.category||'—')}</span>${v.subcategory?`<div style="font-size:11px;color:#888;margin-top:3px">&#8627; ${esc(v.subcategory)}</div>`:''}</td>
+      <td>${esc(v.description||'—')}</td>
+      <td>${ownerCell}</td>
+      <td>${dueDateCell}</td>
     </tr>`;
   }).join('');
 }
@@ -4734,7 +4770,7 @@ spInit();
     </div>
     <button onclick="filterPermitListSearch('')" style="padding:6px 12px;border:1px solid #c5d0f0;border-radius:8px;background:#f5f7ff;color:#1e3a5f;font-size:11px;font-weight:700;cursor:pointer">✕ Clear</button>
   </div>
-  <div class="permit-list-wrap">
+  <div id="permit-list-std-wrap" class="permit-list-wrap">
     <table class="permit-list-table" id="permit-list-tbl">
       <thead><tr>
         <th>PTW Number</th><th>DATE</th><th>Time</th>
@@ -4752,6 +4788,8 @@ spInit();
       <tbody id="permit-list-body"></tbody>
     </table>
   </div>
+  <!-- Alt content area — used for violation drill-down tables (own thead, no permit columns) -->
+  <div id="permit-list-alt-wrap" style="display:none;overflow-x:auto;max-height:65vh;overflow-y:auto"></div>
   <div class="modal-actions"><button class="btn-cancel" onclick="closeAll()">Close</button><button class="btn-save btn-print" onclick="printPermitList()">🖨 Print to PDF</button></div>
 </div></div>
 
