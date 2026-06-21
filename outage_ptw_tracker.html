@@ -310,9 +310,21 @@ textarea{resize:vertical;min-height:52px}
 .viol-cat-badge{background:#fce4ec;color:#c62828;border-radius:4px;padding:2px 5px;font-size:11px;font-weight:700;display:inline-block;max-width:100%;word-break:break-word;white-space:normal}
 .btn-save.red{background:#c62828;color:#fff}.btn-save.red:hover{background:#e53935}
 .vf-readonly{background:#f4f6fa;color:#555;cursor:default}
+
+/* ── Gantt tooltip ── */
+#gantt-tip .gt-title{font-size:12px;font-weight:800;color:#fff;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:4px}
+#gantt-tip .gt-row{display:flex;justify-content:space-between;gap:14px;margin-top:2px}
+#gantt-tip .gt-key{color:#7b8fa0;font-size:10px;white-space:nowrap}
+#gantt-tip .gt-val{color:#c8d4e0;font-weight:600;font-size:10px;text-align:right}
+#gantt-tip .gt-badge{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:.3px}
 </style>
 </head>
 <body>
+
+<!-- Gantt hover tooltip -->
+<div id="gantt-tip" style="position:fixed;display:none;z-index:9999;background:#1c2733;color:#e2e8f0;border-radius:7px;padding:10px 13px;font-family:Arial,sans-serif;font-size:11px;line-height:1.6;box-shadow:0 6px 20px rgba(0,0,0,0.4);pointer-events:none;max-width:290px;border-left:4px solid #5b8ef7">
+  <div id="gantt-tip-body"></div>
+</div>
 
 <!-- ═══════════════════════════════════════
      HOME PAGE
@@ -419,7 +431,6 @@ textarea{resize:vertical;min-height:52px}
         <div id="main-task-suggestions" style="display:none;position:absolute;top:calc(100% + 3px);left:0;width:100%;background:#0d1b2e;border:1px solid #3a5f9a;border-radius:5px;z-index:9999;max-height:360px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.5)"></div>
       </div>
     </div>
-    <button id="btn-dates-toggle" onclick="toggleAllDates()" style="background:#1e3a5f;color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap">📅 Show Dates</button>
   </div>
   <table id="tbl">
     <thead><tr>
@@ -429,9 +440,6 @@ textarea{resize:vertical;min-height:52px}
       <th style="width:145px">Start</th>
       <th style="width:145px">Finish</th>
       <th style="width:125px">System</th>
-      <th style="width:148px">Status</th>
-      <th style="width:75px;text-align:center">% Complete</th>
-      <th style="width:75px;text-align:center">Expected %</th>
       <th style="width:110px;text-align:right">Permits</th>
     </tr></thead>
     <tbody id="tbody"></tbody>
@@ -1291,19 +1299,6 @@ function toggleDates(id) {
   if (expandedDates.has(id)) { expandedDates.delete(id); el.style.display = 'none'; }
   else { expandedDates.add(id); el.style.display = 'table-row'; }
 }
-let _allDatesOpen = false;
-function toggleAllDates() {
-  _allDatesOpen = !_allDatesOpen;
-  const all = tasks.map(t => String(t.id));
-  all.forEach(id => {
-    const el = document.getElementById('dt-main-'+id) || document.getElementById('dt-sub-'+id);
-    if (!el) return;
-    if (_allDatesOpen) { expandedDates.add(id); el.style.display = 'table-row'; }
-    else { expandedDates.delete(id); el.style.display = 'none'; }
-  });
-  const btn = document.getElementById('btn-dates-toggle');
-  if (btn) btn.textContent = _allDatesOpen ? '📅 Hide Dates' : '📅 Show Dates';
-}
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -1398,7 +1393,7 @@ function render() {
     const g = mt.group || null;
     if (g !== _curGroup) {
       _curGroup = g;
-      if (g) html += `<tr class="row-group"><td colspan="10" style="background:#1e3a5f;color:#fff;font-weight:900;font-size:12px;padding:7px 14px;letter-spacing:0.5px">📁 ${g}</td></tr>`;
+      if (g) html += `<tr class="row-group"><td colspan="7" style="background:#1e3a5f;color:#fff;font-weight:900;font-size:12px;padding:7px 14px;letter-spacing:0.5px">📁 ${g}</td></tr>`;
     }
     html += rowMain(mt);
     if (expandedSubtasks.has(String(mt.id))) {
@@ -1408,7 +1403,7 @@ function render() {
       html += rowSub(st);
     }
   }
-  tbody.innerHTML = html || `<tr><td colspan="10" class="empty">No tasks. Use Actions → Add to get started.</td></tr>`;
+  tbody.innerHTML = html || `<tr><td colspan="7" class="empty">No tasks. Use Actions → Add to get started.</td></tr>`;
 
   // populate main task dropdown in add task modal
   document.getElementById("st-parent").innerHTML =
@@ -1433,20 +1428,7 @@ function rowMain(t) {
         ${pc.closed>0?`<span class="pc-badge pc-closed">${pc.closed} Closed</span>`:""}
         ${pc.suspended>0?`<span class="pc-badge pc-suspended">${pc.suspended} Susp.</span>`:""}
        </span>` : "";
-  const dtId = 'dt-main-'+t.id;
-  const dtOpen = expandedDates.has(String(t.id));
-  const dateRow = `<tr id="${dtId}" class="row-dates" style="display:${dtOpen?'table-row':'none'}">
-    <td colspan="10" style="background:#f0f4ff;padding:4px 12px 6px 32px;border-bottom:1px solid #d0d8f0">
-      <div style="display:flex;flex-wrap:wrap;gap:8px 24px;font-size:11px">
-        ${t.start?`<span><b>Start:</b> ${fmtDT(t.start)}</span>`:''}
-        ${t.finish?`<span><b>Finish:</b> ${fmtDT(t.finish)}</span>`:''}
-        ${t.baselineStart?`<span style="color:#5a5a00"><b>Baseline Start:</b> ${fmtDT(t.baselineStart)}</span>`:''}
-        ${t.baselineFinish?`<span style="color:#5a5a00"><b>Baseline Finish:</b> ${fmtDT(t.baselineFinish)}</span>`:''}
-        ${t.actualStart?`<span style="color:#1a6b1a"><b>Actual Start:</b> ${fmtDT(t.actualStart)}</span>`:''}
-        ${t.actualFinish?`<span style="color:#1a6b1a"><b>Actual Finish:</b> ${fmtDT(t.actualFinish)}</span>`:''}
-      </div>
-    </td>
-  </tr>`;
+
   return `<tr class="row-main" id="task-row-${t.id}">
     <td style="font-weight:700;color:#1e3a5f">${t.id}</td>
     <td><strong>${t.name}</strong>${pcHtml}</td>
@@ -1454,38 +1436,16 @@ function rowMain(t) {
     <td style="font-size:11px;color:#444">${fmtDT(t.start)}</td>
     <td style="font-size:11px;color:#444">${fmtDT(t.finish)}</td>
     <td style="font-size:11px"><input type="text" list="dl-system" value="${t.resources||''}" placeholder="Select system" style="width:110px;font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px 5px;background:#fff" onchange="(function(v){const tk=tasks.find(x=>String(x.id)==='${t.id}');if(tk){tk.resources=v;scheduleAutoSave();}})(this.value)"></td>
-    <td>${statusCell(t.id,t.status,"task")}</td>
-    <td style="text-align:center">
-      <input type="number" min="0" max="100" value="${t.pctComplete!=null?t.pctComplete:''}" placeholder="—" style="width:54px;font-size:12px;font-weight:700;color:#1e3a5f;text-align:center;border:1px solid #c5d0f0;border-radius:4px;padding:2px 4px;background:#edf2ff" onchange="(function(v){const tk=tasks.find(x=>String(x.id)==='${t.id}');if(tk){tk.pctComplete=v===''?null:Number(v);scheduleAutoSave();}})( this.value)" onclick="event.stopPropagation()">
-    </td>
-    <td style="text-align:center">
-      <input type="number" min="0" max="100" value="${t.expectedPct!=null?t.expectedPct:''}" placeholder="—" style="width:54px;font-size:12px;color:#7a5f00;text-align:center;border:1px solid #ffe082;border-radius:4px;padding:2px 4px;background:#fffde7" 
-        onchange="(function(v){const tk=tasks.find(x=>String(x.id)==='${t.id}');if(tk){tk.expectedPct=v===''?null:Number(v);scheduleAutoSave();}})( this.value)" 
-        onclick="event.stopPropagation()">
-    </td>
     <td style="text-align:right;white-space:nowrap">
       <button class="btn-toggle" onclick="togglePermits('${t.id}')" title="Toggle permits">${isOpen?"▲":"▼"}${pc.total>0?` (${pc.total})`:""}</button>
       <button class="btn-add-pm" onclick="openPermitModal(${t.id})" title="Add permit">＋</button>
     </td>
-  </tr>${dateRow}`;
+  </tr>`;
 }
 
 function rowSub(t) {
   const isSubhd = t.subheading === true;
-  const dtId2 = 'dt-sub-'+t.id;
-  const dtOpen2 = expandedDates.has(String(t.id));
-  const dateRow2 = `<tr id="${dtId2}" class="row-dates" style="display:${dtOpen2?'table-row':'none'}">
-    <td colspan="10" style="background:#f5fff5;padding:4px 12px 6px 48px;border-bottom:1px solid #c8e6c9">
-      <div style="display:flex;flex-wrap:wrap;gap:8px 24px;font-size:11px">
-        ${t.start?`<span><b>Start:</b> ${fmtDT(t.start)}</span>`:''}
-        ${t.finish?`<span><b>Finish:</b> ${fmtDT(t.finish)}</span>`:''}
-        ${t.baselineStart?`<span style="color:#5a5a00"><b>Baseline Start:</b> ${fmtDT(t.baselineStart)}</span>`:''}
-        ${t.baselineFinish?`<span style="color:#5a5a00"><b>Baseline Finish:</b> ${fmtDT(t.baselineFinish)}</span>`:''}
-        ${t.actualStart?`<span style="color:#1a6b1a"><b>Actual Start:</b> ${fmtDT(t.actualStart)}</span>`:''}
-        ${t.actualFinish?`<span style="color:#1a6b1a"><b>Actual Finish:</b> ${fmtDT(t.actualFinish)}</span>`:''}
-      </div>
-    </td>
-  </tr>`;
+
   return `<tr class="${isSubhd?'row-sub row-subhd':'row-sub'}">
     <td class="indent-1" style="color:#555">${t.id}</td>
     <td style="${isSubhd?'font-weight:700;color:#1e3a5f;padding-left:8px':''}">${isSubhd?'▸ ':''} ${t.name}</td>
@@ -1493,17 +1453,8 @@ function rowSub(t) {
     <td style="font-size:11px;color:#444">${fmtDT(t.start)}</td>
     <td style="font-size:11px;color:#444">${fmtDT(t.finish)}</td>
     <td style="font-size:11px"><input type="text" list="dl-system" value="${t.resources||''}" placeholder="Select system" style="width:110px;font-size:11px;border:1px solid #ddd;border-radius:4px;padding:2px 5px;background:#fff" onchange="(function(v){const tk=tasks.find(x=>String(x.id)==='${t.id}');if(tk){tk.resources=v;scheduleAutoSave();}})(this.value)"></td>
-    <td>${statusCell(t.id,t.status,"task")}</td>
-    <td style="text-align:center;vertical-align:middle">
-      ${(()=>{const _s=t.status||'';const _pv=_s==='Complete'?100:_s==='Not started'?0:(t.pctComplete!=null?t.pctComplete:(_s==='In progress'?1:0));const _lk=_s==='Complete'||_s==='Not started';const _col=_s==='Complete'?'#2d6a4f':_s==='Not started'?'#9e9e9e':'#1e3a5f';const _bg=_s==='Complete'?'#e6f4ed':_s==='Not started'?'#f5f5f5':'#edf2ff';const _bd=_s==='Complete'?'#a5d6a7':_s==='Not started'?'#e0e0e0':'#c5d0f0';if(_lk)return `<span style=\"display:inline-flex;align-items:center;gap:1px;background:${_bg};border:1px solid ${_bd};border-radius:5px;padding:2px 6px;min-width:52px;justify-content:center\" title=\"${_s}\"><span style=\"font-size:11px;font-weight:900;color:${_col}\">${_pv}%</span></span>`;return `<span style=\"display:inline-flex;align-items:center;gap:2px;background:${_bg};border:1.5px solid ${_bd};border-radius:5px;padding:1px 5px\" title=\"% completion (1-99% while In progress)\"><input type=\"number\" min=\"1\" max=\"99\" value=\"${_pv}\" style=\"width:44px;border:none;background:transparent;font-size:11px;font-weight:700;color:${_col};text-align:center;outline:none;-moz-appearance:textfield;appearance:textfield\" onclick=\"event.stopPropagation()\" onchange=\"setSubPct('${t.id}',this.value)\"><span style=\"font-size:10px;color:${_col};font-weight:700\">%</span></span>`;})()}
-    </td>
-    <td style="text-align:center;vertical-align:middle">
-      <input type="number" min="0" max="100" value="${t.expectedPct!=null?t.expectedPct:''}" placeholder="—" style="width:54px;font-size:11px;color:#7a5f00;text-align:center;border:1px solid #ffe082;border-radius:4px;padding:2px 4px;background:#fffde7"
-        onchange="(function(v){const tk=tasks.find(x=>String(x.id)==='${t.id}');if(tk){tk.expectedPct=v===''?null:Number(v);scheduleAutoSave();}})( this.value)"
-        onclick="event.stopPropagation()">
-    </td>
     <td></td>
-  </tr>${dateRow2}`;
+  </tr>`;
 }
 
 function saveTaskNote(tid, val) {
@@ -1646,6 +1597,55 @@ function openPermitModal(preselectedMid) {
     document.getElementById("pm-main-task").value = "";
   }
   show("modal-permit");
+}
+
+
+// ── HANDOVER DOCUMENT MODAL ──────────────────────────────────
+function openHandoverDocModal(rowId) {
+  var row = recommData.rows.find(function(r){ return r.id === rowId; });
+  if (!row) return;
+  document.getElementById('rhdoc-row-id').value = rowId;
+  document.getElementById('rhdoc-sys-name').textContent = row.system || '(No system)';
+  var cur = document.getElementById('rhdoc-current');
+  cur.innerHTML = '';
+  if (row.handoverDocName) {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'padding:8px;background:#e8f5e9;border-radius:6px;font-size:12px';
+    wrap.innerHTML = '<span>&#10003; <strong>' + (row.handoverDocName||'') + '</strong> already uploaded.</span>';
+    var rmBtn = document.createElement('button');
+    rmBtn.textContent = '✕ Remove';
+    rmBtn.style.cssText = 'margin-left:10px;color:#c62828;background:none;border:none;cursor:pointer;font-weight:700';
+    rmBtn.onclick = function(){ removeHandoverDoc(rowId); };
+    wrap.appendChild(rmBtn);
+    cur.appendChild(wrap);
+  } else {
+    cur.innerHTML = '<div style="color:#888;font-size:11px;padding:4px 0">No document uploaded yet.</div>';
+  }
+  document.getElementById('rhdoc-file').value = '';
+  document.getElementById('recomm-hdoc-modal').style.display = 'flex';
+}
+function closeRecommHdocModal() {
+  document.getElementById('recomm-hdoc-modal').style.display = 'none';
+}
+function saveHandoverDoc() {
+  const rowId = document.getElementById('rhdoc-row-id').value;
+  const file  = document.getElementById('rhdoc-file').files[0];
+  const row   = recommData.rows.find(function(r){ return r.id === rowId; });
+  if (!row) return;
+  if (!file) { closeRecommHdocModal(); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    row.handoverDocName = file.name;
+    row.handoverDocData = e.target.result;
+    saveRecommData(); renderRecommPage(); closeRecommHdocModal();
+  };
+  reader.readAsDataURL(file);
+}
+function removeHandoverDoc(rowId) {
+  const row = recommData.rows.find(function(r){ return r.id === rowId; });
+  if (!row) return;
+  row.handoverDocName = ''; row.handoverDocData = '';
+  saveRecommData(); openHandoverDocModal(rowId);
 }
 
 function closeAll() {
@@ -4902,11 +4902,11 @@ spInit();
 
 /* Swimlane table */
 .recomm-lane-wrap{min-width:1100px}
-.recomm-lane-hdr{display:grid;grid-template-columns:170px 200px 1fr;background:#1e3a5f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.5px;border-radius:8px 8px 0 0;overflow:hidden}
+.recomm-lane-hdr{display:grid;grid-template-columns:170px 220px 1fr;background:#1e3a5f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.5px;border-radius:8px 8px 0 0;overflow:hidden}
 .recomm-lane-hdr > div{padding:8px 10px;border-right:1px solid rgba(255,255,255,.15)}
 .recomm-lane-hdr > div:last-child{border-right:none}
 
-.recomm-row{display:grid;grid-template-columns:170px 200px 1fr;border-bottom:1px solid #ccd1dc;background:#fff;transition:background .15s}
+.recomm-row{display:grid;grid-template-columns:170px 220px 1fr;border-bottom:1px solid #ccd1dc;background:#fff;transition:background .15s}
 .recomm-row:hover{background:#fafbfd}
 .recomm-row.even{background:#f7f9fc}
 
@@ -4914,25 +4914,32 @@ spInit();
 .rr-sysname{font-size:12px;font-weight:700;color:#1e3a5f;word-break:break-word}
 
 .rr-prereq{padding:8px 10px;border-right:1px solid #dde2ea;display:flex;flex-direction:column;gap:5px;justify-content:center}
+
+/* ── Actions list column ── */
+.rr-actions-list{border-right:1px solid #dde2ea;display:flex;flex-direction:column;overflow:hidden}
+.rr-al-hdr{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:800;letter-spacing:.3px;min-height:24px;flex-shrink:0}
+.rr-al-add{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:5px;color:#fff;font-size:9px;font-weight:700;padding:1px 7px;cursor:pointer}
+.rr-al-row{display:flex;align-items:center;gap:6px;padding:0 6px 0 8px;font-size:10px;font-weight:600;color:#2a3a4e;border-bottom:1px solid rgba(190,210,230,0.3);white-space:nowrap;overflow:hidden;cursor:pointer}
+.rr-al-row:hover{filter:brightness(.94)}
 .prereq-btn{display:flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid #b0bcd6;border-radius:8px;background:#edf2ff;color:#1e3a5f;font-size:11px;font-weight:700;cursor:pointer;text-align:left;width:100%}
 .prereq-btn:hover{background:#dbe4ff}
 .prereq-btn .pb-badge{background:#1e3a5f;color:#fff;border-radius:8px;padding:1px 6px;font-size:10px;margin-left:auto}
 .prereq-btn.green{background:#e6f4ed;border-color:#a5d6a7;color:#1b5e20}
 .prereq-btn.orange{background:#fff3e0;border-color:#ffcc80;color:#b07b1e}
 
-.rr-actions{padding:0;position:relative;min-height:207px;overflow:hidden}
-.rr-actions-inner{position:relative;height:100%;min-height:201px}
+.rr-actions{padding:0;position:relative;overflow:visible}
+.rr-timeline-inner{position:relative;width:100%}
 
 /* Gauge chart */
 .recomm-gauge{width:100%;margin-top:4px;text-align:center}
 
 /* Action boxes */
-.act-box{position:absolute;top:8px;height:calc(100% - 20px);min-height:28px;border-radius:6px;font-size:10px;font-weight:700;z-index:2;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 4px;text-align:center;border:2px solid rgba(0,0,0,.12);z-index:2;box-sizing:border-box;overflow:hidden;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.act-box{position:absolute;border-radius:5px;z-index:2;cursor:pointer;border:2px solid rgba(0,0,0,.15);box-sizing:border-box;overflow:hidden;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,.14);transition:opacity .15s}.act-box:hover{opacity:.82;box-shadow:0 2px 8px rgba(0,0,0,.22)}
 .act-box.status-not_started{background:#c8d0d9;color:#2a3540;border-color:#9ba8b4}
 .act-box.status-in_progress{background:#fff3cd;color:#5d4037;border-color:#ffc107}
 .act-box.status-complete{background:#c8e6c9;color:#1b5e20;border-color:#66bb6a}
 .act-box:hover{filter:brightness(1.08);z-index:5}
-.act-box .ab-label{font-size:11px;font-weight:700;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 .act-box .ab-dates{font-size:8px;font-weight:400;opacity:.8;margin-top:1px}
 .act-box .ab-add-dep{position:absolute;top:1px;right:2px;font-size:9px;opacity:.5;cursor:crosshair}
 .act-box .ab-add-dep:hover{opacity:1}
@@ -4945,7 +4952,7 @@ spInit();
 .tl-tick{position:absolute;top:0;height:100%;border-left:1px solid #c5cde0;display:flex;align-items:flex-end;padding-bottom:3px;padding-left:3px;font-size:9px;color:#fff;font-weight:700;white-space:nowrap;pointer-events:none}
 
 /* Handover date marker */
-.hdover-marker{position:absolute;top:0;height:100%;width:0;border-left:2px dashed #d63031;z-index:1}
+.hdover-marker{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed #d63031;z-index:3;pointer-events:none}
 .hdover-label{position:absolute;top:2px;font-size:8px;color:#d63031;font-weight:700;white-space:nowrap;z-index:1;pointer-events:none}
 
 /* Row add bar */
@@ -5006,7 +5013,7 @@ spInit();
     <!-- Column headers -->
     <div class="recomm-lane-hdr">
       <div>System</div>
-      <div>Pre-requisites</div>
+      <div>Actions</div>
       <div id="recomm-tl-hdr" style="padding:0;position:relative;overflow:hidden;min-height:28px"></div>
     </div>
     <!-- Row container -->
@@ -5219,6 +5226,7 @@ loadRecommData();
 // ── TIMELINE HELPERS ──
 function parseDate(s) { if (!s) return null; return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s) ? new Date(s) : new Date(s + 'T00:00:00'); }
 function fmtDateShort(d) { if(!d) return ''; return d.toLocaleDateString('en-ZA',{month:'short',day:'numeric'}); }
+function fmtDateDay(d) { if(!d) return ''; return d.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'}); }
 
 function getTimelineRange() {
   let min = null, max = null;
@@ -5299,6 +5307,26 @@ function getSystemProgress(sysName) {
   return { pct: totalPct / count, expected: totalExp / count };
 }
 
+
+// ── PER-ROW ACTION PROGRESS (recommissioning chart) ──
+function getRowActionProgress(row) {
+  const actions = (row.actions || []).filter(function(a){ return a.start && a.end; });
+  if (!actions.length) return { pct: 0, expected: 0 };
+  const now = Date.now();
+  let complete = 0, expectedDone = 0;
+  actions.forEach(function(act) {
+    if ((act.status || '') === 'complete') complete++;
+    const s = parseDate(act.start), e = parseDate(act.end);
+    if (s && e && e > s) {
+      if (now >= e.getTime())       expectedDone += 1;
+      else if (now >= s.getTime())  expectedDone += (now - s.getTime()) / (e.getTime() - s.getTime());
+    }
+  });
+  return {
+    pct:      (complete     / actions.length) * 100,
+    expected: (expectedDone / actions.length) * 100
+  };
+}
 // ── PTW COUNT PER SYSTEM ──
 function countPermitsBySystem(sysName) {
   const ps = (typeof permits !== 'undefined' ? permits : []).filter(function(p) {
@@ -5316,33 +5344,86 @@ function countPermitsBySystem(sysName) {
 
 // ── RENDER TIMELINE RULER ──
 function renderTimelineRuler(min, max, width) {
-  const totalMs = max - min;
-  const days = Math.ceil(totalMs / 86400000);
+  const totalMs   = max - min;
+  const totalDays = totalMs / 86400000;
+  const showHours = totalDays <= 14;
+
+  // Anchor all ticks to true calendar midnight
+  const firstMidnight = new Date(min.getFullYear(), min.getMonth(), min.getDate(), 0, 0, 0, 0);
+  // Adaptive hour step so labels never crowd: 1h ≤3d, 3h ≤7d, 6h ≤14d
+  const HR_STEP = totalDays <= 3 ? 1 : totalDays <= 7 ? 3 : 6;
+  const HOUR_STEP_MS = HR_STEP * 3600000;
   let ticks = '';
-  // Alternating day bands for easy reading
-  for (let d = 0; d < days; d++) {
-    const left = (d / days * 100).toFixed(2);
-    const w = (1 / days * 100).toFixed(2);
-    if (d % 2 === 1) {
-      ticks += `<div style="position:absolute;top:0;bottom:0;left:${left}%;width:${w}%;background:rgba(0,0,0,0.04);pointer-events:none;z-index:0"></div>`;
+
+  if (showHours) {
+    // ── TWO-TIER RULER ─────────────────────────────────────────
+    ticks += `<div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(255,255,255,0.25);z-index:4;pointer-events:none"></div>`;
+
+    // TIER 1 — Day columns (top 50%)
+    for (let dayT = firstMidnight.getTime(); dayT < max.getTime(); dayT += 86400000) {
+      const f0   = (dayT            - min.getTime()) / totalMs;
+      const f1   = (dayT + 86400000 - min.getTime()) / totalMs;
+      const v0   = Math.max(0, f0), v1 = Math.min(1, f1);
+      if (v1 <= v0) continue;
+      const L = (v0 * 100).toFixed(3), W = ((v1 - v0) * 100).toFixed(3);
+      const di = Math.round((dayT - firstMidnight.getTime()) / 86400000);
+      const bg = di % 2 === 0 ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+      ticks += `<div style="position:absolute;top:0;height:50%;left:${L}%;width:${W}%;background:${bg};pointer-events:none"></div>`;
+      if (f0 >= -0.001)
+        ticks += `<div style="position:absolute;top:0;height:50%;left:${(Math.max(0,f0)*100).toFixed(3)}%;width:1px;background:rgba(255,255,255,0.45);z-index:3;pointer-events:none"></div>`;
+      ticks += `<div style="position:absolute;top:0;height:50%;left:${L}%;width:${W}%;display:flex;align-items:center;padding-left:4px;font-size:9px;color:#fff;font-weight:800;font-family:Arial,sans-serif;white-space:nowrap;overflow:hidden;z-index:3;pointer-events:none">${fmtDateDay(new Date(dayT))}</div>`;
+    }
+    ticks += `<div style="position:absolute;top:0;height:50%;right:0;width:1px;background:rgba(255,255,255,0.45);z-index:3;pointer-events:none"></div>`;
+
+    // TIER 2 — Hour marks (bottom 50%), VERTICAL labels
+    for (let t = firstMidnight.getTime(); t <= max.getTime() + 1000; t += HOUR_STEP_MS) {
+      const frac = (t - min.getTime()) / totalMs;
+      if (frac < -0.0001) continue;
+      if (frac >  1.0001) break;
+      const tickDate = new Date(t);
+      const hr       = tickDate.getHours();
+      const isMid    = hr === 0;
+      const L        = (Math.max(0, Math.min(1, frac)) * 100).toFixed(3);
+      // Tick vertical line
+      ticks += `<div style="position:absolute;top:50%;bottom:0;left:${L}%;width:1px;background:rgba(${isMid?'255,255,255,0.5':'180,210,240,0.28'});z-index:${isMid?3:2};pointer-events:none"></div>`;
+      // VERTICAL hour label — writing-mode rotated, centered on tick
+      // font-size 7px → element width ≈7px, so offset -3px centers on tick
+      if (frac < 0.99) {
+        const lbl = String(hr).padStart(2,'0') + ':00';
+        const co  = 'rgba(255,255,255,0.68)';
+        const fw  = '500';
+        ticks += `<div style="position:absolute;bottom:2px;left:calc(${L}% + 2px);writing-mode:vertical-rl;transform:rotate(180deg);font-size:7px;color:${co};font-weight:${fw};white-space:nowrap;z-index:3;pointer-events:none;font-family:Arial,sans-serif;line-height:1">${lbl}</div>`;
+      }
+    }
+
+  } else {
+    // ── SINGLE-TIER: day labels only (range > 14 days) ─────────
+    for (let dayT = firstMidnight.getTime(); dayT < max.getTime(); dayT += 86400000) {
+      const f0 = (dayT - min.getTime()) / totalMs;
+      const v0 = Math.max(0, f0);
+      if (v0 >= 1) break;
+      const di = Math.round((dayT - firstMidnight.getTime()) / 86400000);
+      const w  = ((Math.min(1, (dayT+86400000-min.getTime())/totalMs) - v0)*100).toFixed(3);
+      if (di % 2 === 1)
+        ticks += `<div style="position:absolute;top:0;bottom:0;left:${(v0*100).toFixed(3)}%;width:${w}%;background:rgba(0,0,0,0.05);pointer-events:none"></div>`;
+      if (f0 >= 0)
+        ticks += `<div style="position:absolute;top:0;bottom:0;left:${(v0*100).toFixed(3)}%;width:1px;background:rgba(100,120,160,0.35);z-index:1;pointer-events:none"></div>`;
+    }
+    const dc = Math.ceil(totalDays);
+    const step = dc > 20 ? Math.ceil(dc / 15) : 1;
+    for (let dayT = firstMidnight.getTime(), di = 0; dayT <= max.getTime(); dayT += 86400000, di++) {
+      if (di % step !== 0) continue;
+      const frac = (dayT - min.getTime()) / totalMs;
+      if (frac < 0 || frac > 1) continue;
+      ticks += `<div class="tl-tick" style="left:${(frac*100).toFixed(3)}%;z-index:2">${fmtDateShort(new Date(dayT))}</div>`;
     }
   }
-  // Day separators — solid vertical lines at each day boundary
-  for (let d = 0; d <= days; d++) {
-    const left = (d / days * 100).toFixed(2);
-    ticks += `<div style="position:absolute;top:0;bottom:0;left:${left}%;width:1px;background:rgba(100,120,160,0.25);z-index:1;pointer-events:none"></div>`;
-  }
-  const step = days > 20 ? Math.ceil(days / 15) : 1;
-  for (let d = 0; d <= days; d += step) {
-    const dt = new Date(min.getTime() + d * 86400000);
-    const left = (d / days * 100).toFixed(2) + '%';
-    ticks += `<div class="tl-tick" style="left:${left};z-index:2">${fmtDateShort(dt)}</div>`;
-  }
-  // Today hairline — faint dotted
+
+  // TODAY hairline
   const today = new Date();
   const todayFrac = dateToFrac(today, min, max);
   if (todayFrac >= 0 && todayFrac <= 1) {
-    const tp = (todayFrac * 100).toFixed(2);
+    const tp = (todayFrac * 100).toFixed(3);
     ticks += `<div style="position:absolute;top:0;bottom:0;left:${tp}%;width:0;border-left:2px solid #e53935;z-index:8;pointer-events:none"></div>`;
     ticks += `<div style="position:absolute;top:2px;left:calc(${tp}% + 3px);background:#e53935;color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px;z-index:9;white-space:nowrap;font-family:Arial,sans-serif">TODAY</div>`;
   }
@@ -5376,52 +5457,88 @@ function assignLanes(actions) {
 }
 
 // ── RENDER ACTION BOXES ──
-function renderActionBoxes(row, min, max, rowIndex) {
-  const BAR_H = 28, BAR_GAP = 3, TOP_PAD = 5;
-  const actions = row.actions || [];
 
-  // Assign non-overlapping lanes
-  const { laneMap, numLanes } = assignLanes(actions);
-  const totalH = Math.max(201, TOP_PAD + numLanes * (BAR_H + BAR_GAP) + 10);
-
-  let html = `<div class="rr-actions-inner" style="position:relative;width:100%;min-height:${totalH}px">`;
-  // Handover date marker
-  if (row.handoverDate) {
-    const hd = parseDate(row.handoverDate);
-    const left = (dateToFrac(hd, min, max) * 100).toFixed(2);
-    html += `<div class="hdover-marker" style="left:${left}%" title="Handover: ${row.handoverDate}"></div>
-             <div class="hdover-label" style="left:calc(${left}% + 4px)">HO: ${fmtDateShort(hd)}</div>`;
-  }
-  // Action boxes — sorted by start date, placed in their assigned lane
-  actions.forEach(function(act) {
-    const s = parseDate(act.start);
-    const e = parseDate(act.end);
-    if (!s || !e) return;
-    const leftFrac = dateToFrac(s, min, max);
-    const rightFrac = dateToFrac(e, min, max);
-    const widthFrac = Math.max(0.005, rightFrac - leftFrac);
-    const left   = (leftFrac  * 100).toFixed(2);
-    const width  = (widthFrac * 100).toFixed(2);
-    const lane   = laneMap[act.id] || 0;
-    const topOff = TOP_PAD + lane * (BAR_H + BAR_GAP);
-    const statusClass = 'status-' + (act.status || 'not_started');
-    html += `<div class="act-box ${statusClass}"
-      data-actid="${act.id}" data-rowid="${row.id}"
-      style="left:${left}%;width:${width}%;top:${topOff}px;height:${BAR_H}px"
-      onclick="editRecommAction('${row.id}','${act.id}')"
-      title="${act.label} | ${act.start} → ${act.end}">
-      <div class="ab-label">${act.label}</div>
-    </div>`;
+// ── ACTIONS LIST (one labelled lane per action) ──────────────
+function renderActionsList(row, numLanes) {
+  const LANE_H = 26;
+  const SC = {not_started:'#9ba8b4', in_progress:'#ffc107', complete:'#66bb6a'};
+  const _el = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const actions = (row.actions || []).slice().sort(function(a, b) {
+    const sa = parseDate(a.start), sb = parseDate(b.start);
+    if (!sa && !sb) return 0; if (!sa) return 1; if (!sb) return -1; return sa - sb;
   });
-  // Today hairline on action timeline
-  const _today = new Date();
-  const _todayFrac = dateToFrac(_today, min, max);
-  if (_todayFrac >= 0 && _todayFrac <= 1) {
-    const _tp = (_todayFrac * 100).toFixed(2);
-    html += `<div style="position:absolute;top:0;bottom:0;left:${_tp}%;width:0;border-left:2px solid rgba(229,57,53,0.85);z-index:1;pointer-events:none" title="Today"></div>`;
+  const nL = numLanes || Math.max(3, actions.length);
+  let html = '';
+  for (let i = 0; i < nL; i++) {
+    const act = actions[i];
+    const bg  = i % 2 === 0 ? 'rgba(220,235,255,0.55)' : 'rgba(248,250,255,0.95)';
+    if (act) {
+      const dot = SC[act.status||'not_started']||'#9ba8b4';
+      html += `<div class="rr-al-row" style="height:${LANE_H}px;background:${bg}" onclick="editRecommAction('${row.id}','${act.id}')" title="${_el(act.label)}">`
+        + `<span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:${dot};box-shadow:0 0 4px ${dot}99"></span>`
+        + `<span style="overflow:hidden;text-overflow:ellipsis;flex:1">${i+1}. ${_el(act.label)}</span>`
+        + `</div>`;
+    } else {
+      html += `<div style="height:${LANE_H}px;background:${bg};border-bottom:1px solid rgba(190,210,230,0.3)"></div>`;
+    }
   }
-  html += '</div>';
   return html;
+}
+
+function renderActionBoxes(row, min, max, rowIndex, numLanes) {
+  const LANE_H=26, BAR_H=18, BAR_VP=4; // (26-18)/2
+  const _el=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const actions=(row.actions||[]).slice().sort(function(a,b){
+    const sa=parseDate(a.start),sb=parseDate(b.start);
+    if(!sa&&!sb)return 0;if(!sa)return 1;if(!sb)return -1;return sa-sb;
+  });
+  const nL=numLanes||Math.max(3,actions.length);
+  const totalH=nL*LANE_H, totalMs=max-min;
+  const fm=new Date(min.getFullYear(),min.getMonth(),min.getDate(),0,0,0,0);
+
+  // ── Full-height overlay: day bands, grid lines, today, HO ──
+  let ov='';
+  for(let dT=fm.getTime();dT<max.getTime();dT+=86400000){
+    const f0=(dT-min.getTime())/totalMs, f1=(dT+86400000-min.getTime())/totalMs;
+    const v0=Math.max(0,f0),v1=Math.min(1,f1); if(v1<=v0)continue;
+    const di=Math.round((dT-fm.getTime())/86400000);
+    // Alternating day fill
+    if(di%2===1) ov+=`<div style="position:absolute;top:0;bottom:0;left:${(v0*100).toFixed(3)}%;width:${((v1-v0)*100).toFixed(3)}%;background:rgba(0,0,0,0.030);pointer-events:none"></div>`;
+    // Day separator line
+    if(f0>=0&&f0<=1) ov+=`<div style="position:absolute;top:0;bottom:0;left:${(Math.max(0,f0)*100).toFixed(3)}%;width:1px;background:rgba(150,175,210,0.22);pointer-events:none"></div>`;
+  }
+  // TODAY hairline — 1px thin red
+  const _tf=dateToFrac(new Date(),min,max);
+  if(_tf>=0&&_tf<=1) ov+=`<div style="position:absolute;top:0;bottom:0;left:${(_tf*100).toFixed(3)}%;width:0;border-left:1px solid rgba(229,57,53,0.78);z-index:4;pointer-events:none"></div>`;
+  // HO date marker — 1px thin dashed
+  if(row.handoverDate){
+    const hd=parseDate(row.handoverDate),hf=dateToFrac(hd,min,max);
+    if(hf>=0&&hf<=1){
+      const L=(hf*100).toFixed(2);
+      ov+=`<div style="position:absolute;top:0;bottom:0;left:${L}%;width:0;border-left:1px dashed #d63031;z-index:4;pointer-events:none" title="Handover: ${row.handoverDate}"></div>`;
+      ov+=`<div class="hdover-label" style="left:calc(${L}% + 3px);top:2px">HO: ${fmtDateShort(hd)}</div>`;
+    }
+  }
+
+  // ── Lane backgrounds + action bars ──
+  let lanes='';
+  for(let i=0;i<nL;i++){
+    const act=actions[i],top=i*LANE_H,isEven=i%2===0;
+    const lbg=isEven?'rgba(220,235,255,0.28)':'rgba(255,255,255,0.0)';
+    lanes+=`<div style="position:absolute;top:${top}px;left:0;right:0;height:${LANE_H}px;background:${lbg};border-bottom:1px solid rgba(190,210,230,0.22);pointer-events:none;z-index:0"></div>`;
+    if(act){
+      const s=parseDate(act.start),e=parseDate(act.end);
+      if(s&&e){
+        const lf=dateToFrac(s,min,max),rf=dateToFrac(e,min,max);
+        const wf=Math.max(0.004,rf-lf);
+        const L=(Math.max(0,lf)*100).toFixed(3),W=(wf*100).toFixed(3);
+        const sc='status-'+(act.status||'not_started');
+        lanes+=`<div class="act-box ${sc}" data-actid="${act.id}" data-rowid="${row.id}" data-label="${_el(act.label)}" data-start="${act.start||''}" data-end="${act.end||''}" data-status="${act.status||'not_started'}" data-system="${_el(row.system||'')}" style="left:${L}%;width:${W}%;top:${top+BAR_VP}px;height:${BAR_H}px;z-index:2" onclick="editRecommAction('${row.id}','${act.id}')"></div>`;
+      }
+    }
+  }
+
+  return `<div style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;pointer-events:none;z-index:0">${ov}</div><div class="rr-timeline-inner" style="position:relative;z-index:1;min-height:${totalH}px">${lanes}</div>`;
 }
 
 
@@ -5468,8 +5585,8 @@ function renderDepArrows() {
 
     // Use parent .rr-actions-inner bottom as the routing channel
     // so lines pass BELOW all stacked bars in each row
-    var fromRowEl = fromEl.closest ? fromEl.closest('.rr-actions-inner') : null;
-    var toRowEl   = toEl.closest   ? toEl.closest('.rr-actions-inner')   : null;
+    var fromRowEl = fromEl.closest ? fromEl.closest('.rr-actions') : null;
+    var toRowEl   = toEl.closest   ? toEl.closest('.rr-actions')   : null;
     var fromRowBottom = fromRowEl ? fromRowEl.getBoundingClientRect().bottom : fr.bottom;
     var toRowBottom   = toRowEl   ? toRowEl.getBoundingClientRect().bottom   : tr.bottom;
 
@@ -5519,8 +5636,10 @@ function renderRecommPage() {
   const range = getTimelineRange();
   const { min, max } = range;
 
-  // Render timeline ruler
+  // Render timeline ruler (taller when showing hours)
   tlHdr.style.position = 'relative';
+  const _showHrsRuler = (max - min) / 86400000 <= 14;
+  tlHdr.style.minHeight = _showHrsRuler ? '44px' : '28px';
   tlHdr.innerHTML = renderTimelineRuler(min, max, tlHdr.offsetWidth || 600);
 
   if (!recommData.rows.length) {
@@ -5528,9 +5647,16 @@ function renderRecommPage() {
     return;
   }
 
+  // Pre-compute max action count for uniform lane heights
+  let _maxActCount = 3;
+  recommData.rows.forEach(function(r) {
+    const n = (r.actions||[]).length;
+    if (n > _maxActCount) _maxActCount = n;
+  });
+
   let rowsHtml = '';
   recommData.rows.forEach(function(row, ri) {
-    const prog = getSystemProgress(row.system || '');
+    const prog = getRowActionProgress(row);
     const ptw = countPermitsBySystem(row.system || '');
     const totalPTW = ptw.Open + ptw.Suspended + ptw.Closed;
     const punchCount = (row.punchItems || []).length;
@@ -5546,39 +5672,46 @@ function renderRecommPage() {
       ondragover="recommRowDragOver(event)"
       ondrop="recommRowDrop(event,'${row.id}')"
       ondragend="recommRowDragEnd(event)">
-      <!-- System + Gauge -->
+
+      <!-- ① System: name + progress + 3 status buttons -->
       <div class="rr-system">
         <div class="rr-sysname" style="display:flex;align-items:center;gap:5px">
           <span style="cursor:grab;color:#9ba8b4;font-size:15px;flex-shrink:0;line-height:1" title="Drag to reorder row">⠿</span>
           <span>${row.system || '(No system)'}</span>
         </div>
-        <div style="font-size:9px;color:#888;margin-bottom:2px">Handover: ${row.handoverDate || '—'}</div>
-        ${renderGaugeSVG(prog.pct, prog.expected)}
-        <button style="background:none;border:none;cursor:pointer;color:#6b7d8a;font-size:10px;margin-top:2px;padding:0;text-align:left" onclick="openEditRecommRow('${row.id}')">✏️ Edit row</button>
+        <div style="font-size:9px;color:#6b7d8a">HO: ${row.handoverDate || '—'}</div>
+        <div style="margin:3px 0 4px">
+          <div style="height:6px;border-radius:3px;background:#dde2ea;overflow:hidden">
+            <div style="height:100%;width:${Math.min(100,Math.round(prog.pct))}%;background:${prog.pct>=prog.expected?'#2d6a4f':'#c0392b'};border-radius:3px;transition:width .3s"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:9px;color:#888;margin-top:1px">
+            <span style="font-weight:700;color:${prog.pct>=prog.expected?'#2d6a4f':'#c0392b'}">${Math.round(prog.pct)}%</span>
+            <span>exp ${Math.round(prog.expected)}%</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid #e0e5ef;padding-top:4px;display:flex;flex-direction:column;gap:3px">
+          <button class="prereq-btn ${hasDoc ? 'green' : ''}" onclick="openHandoverDocModal('${row.id}')">📄 Handover docs ${hasDoc ? `<span class="pb-badge">✓</span>` : ''}</button>
+          <button class="prereq-btn" onclick="openPTWStatusModal('${row.id}','${(row.system||'').replace(/'/g,"\'")}')">🔌 PTW ${ptw.Open > 0 ? `<span class="pb-badge" style="background:#ef9a9a;color:#b71c1c">${ptw.Open}</span>` : ''}${ptw.Suspended > 0 ? `<span class="pb-badge" style="background:#8e44ad">${ptw.Suspended}</span>` : ''}${ptw.Closed > 0 ? `<span class="pb-badge" style="background:#27ae60">${ptw.Closed}</span>` : ''}</button>
+          <button class="prereq-btn" style="background:${_punchColor};border-color:${_punchBorder}" onclick="openPunchModal('${row.id}')">🔧 Punch out ${punchCount > 0 ? `<span class="pb-badge" style="background:${_punchBorder}">${punchCount}</span>` : ''}</button>
+          <button style="background:none;border:none;cursor:pointer;color:#6b7d8a;font-size:10px;padding:0;text-align:left" onclick="openEditRecommRow('${row.id}')">✏️ Edit row</button>
+        </div>
       </div>
-      <!-- Pre-requisites -->
-      <div class="rr-prereq">
-        <button class="prereq-btn ${hasDoc ? 'green' : ''}" onclick="openHandoverDocModal('${row.id}')">
-          📄 Handover Document ${hasDoc ? `<span class="pb-badge">✓</span>` : ''}
-        </button>
-        <button class="prereq-btn" onclick="openPTWStatusModal('${row.id}','${(row.system||'').replace(/'/g,"\\'")}')">
-          🔌 PTW Status
-          ${ptw.Open > 0 ? `<span class="pb-badge" style="background:#e67e22">${ptw.Open}</span>` : ''}${ptw.Suspended > 0 ? `<span class="pb-badge" style="background:#8e44ad">${ptw.Suspended}</span>` : ''}${ptw.Closed > 0 ? `<span class="pb-badge" style="background:#27ae60">${ptw.Closed}</span>` : ''}
-        </button>
-        <button class="prereq-btn" style="background:${_punchColor};border-color:${_punchBorder}" onclick="openPunchModal('${row.id}')">
-          🔧 Punch Out
-          ${punchCount > 0 ? `<span class="pb-badge" style="background:${_punchBorder}">${punchCount}</span>` : ''}
-        </button>
+
+      <!-- ② Actions list: NO header per row (column header handles it) — lanes align 1:1 with timeline -->
+      <div class="rr-actions-list">
+        ${renderActionsList(row, _maxActCount)}
       </div>
-      <!-- Actions timeline -->
+
+      <!-- ③ Timeline: full-height day/today/HO overlay + lane bars -->
       <div class="rr-actions">
-        ${renderActionBoxes(row, min, max, ri)}
-        <button onclick="openAddActionForRow('${row.id}')" style="position:absolute;bottom:4px;right:6px;background:#edf2ff;border:1px solid #c5cde0;border-radius:10px;font-size:9px;font-weight:700;color:#1e3a5f;padding:2px 7px;cursor:pointer;z-index:6">＋ action</button>
+        ${renderActionBoxes(row, min, max, ri, _maxActCount)}
+        <button onclick="openAddActionForRow('${row.id}')" style="position:absolute;bottom:4px;right:6px;background:#edf2ff;border:1px solid #c5cde0;border-radius:8px;font-size:9px;font-weight:700;color:#1e3a5f;padding:2px 8px;cursor:pointer;z-index:10">＋ action</button>
       </div>
     </div>`;
+
   });
 
-  rowsWrap.innerHTML = rowsHtml;
+    rowsWrap.innerHTML = rowsHtml;
 
   // Overall progress %
   let _totalAct = 0, _doneAct = 0;
@@ -5944,6 +6077,56 @@ function openPermitListByStatus_Recomm(sysName, status) {
   const titleEl = document.querySelector('#modal-permit-list h2');
   if (titleEl) titleEl.textContent = '📋 ' + status + ' Permits — ' + sysName;
 }
+
+
+// ── Gantt hover tooltip ──────────────────────────────────────
+(function(){
+  const tip = document.getElementById('gantt-tip');
+  const tipBody = document.getElementById('gantt-tip-body');
+  if (!tip || !tipBody) return;
+  const SL = {not_started:'Not Started', in_progress:'In Progress', complete:'Complete'};
+  const SC = {not_started:'#9ba8b4', in_progress:'#ffc107', complete:'#66bb6a'};
+  function showTip(box) {
+    const label  = box.dataset.label  || '(Unnamed)';
+    const start  = box.dataset.start  || '';
+    const end    = box.dataset.end    || '';
+    const status = box.dataset.status || 'not_started';
+    const system = box.dataset.system || '';
+    const fmt = s => s.replace('T',' ');
+    let durStr = '';
+    const s = new Date(start), e = new Date(end);
+    if (!isNaN(s) && !isNaN(e) && e > s) {
+      const diffH = Math.round((e - s) / 3600000);
+      const d = Math.floor(diffH / 24), h = diffH % 24;
+      durStr = d > 0 ? (h > 0 ? `${d}d ${h}h` : `${d}d`) : `${diffH}h`;
+    }
+    const sc = SC[status] || '#9ba8b4';
+    tipBody.innerHTML =
+      `<div class="gt-title">${label}</div>` +
+      (system ? `<div class="gt-row"><span class="gt-key">System</span><span class="gt-val">${system}</span></div>` : '') +
+      (start ? `<div class="gt-row"><span class="gt-key">Start</span><span class="gt-val">${fmt(start)}</span></div>` : '') +
+      (end   ? `<div class="gt-row"><span class="gt-key">End</span><span class="gt-val">${fmt(end)}</span></div>` : '') +
+      (durStr ? `<div class="gt-row"><span class="gt-key">Duration</span><span class="gt-val">${durStr}</span></div>` : '') +
+      `<div><span class="gt-badge" style="background:${sc}22;color:${sc};border:1px solid ${sc}55">${SL[status]||status}</span></div>`;
+    tip.style.borderLeftColor = sc;
+    tip.style.display = 'block';
+  }
+  document.addEventListener('mouseover', function(e) {
+    const box = e.target.closest && e.target.closest('.act-box');
+    if (box) showTip(box);
+  });
+  document.addEventListener('mousemove', function(e) {
+    if (tip.style.display === 'none') return;
+    const x = e.clientX + 16, y = e.clientY - 12;
+    tip.style.left = Math.min(x, window.innerWidth - 305) + 'px';
+    tip.style.top  = Math.max(y, 8) + 'px';
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (!e.target.closest || !e.target.closest('.act-box')) return;
+    if (!e.relatedTarget || !e.relatedTarget.closest || !e.relatedTarget.closest('.act-box'))
+      tip.style.display = 'none';
+  });
+})();
 
 </script>
 </body>
