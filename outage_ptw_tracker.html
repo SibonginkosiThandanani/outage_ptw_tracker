@@ -349,7 +349,7 @@ textarea{resize:vertical;min-height:52px}
       <div class="home-card" onclick="navigateTo('recomm')">
         <div class="card-icon">🔄</div>
         <div class="card-title">Recommissioning Plan</div>
-        <div class="card-desc">System handover, prerequisites, punch list and commissioning swimlane</div>
+        <div class="card-desc">Handover and recommissioning</div>
       </div>
     </div>
     <div id="admin-login-wrap" style="margin-top:32px">
@@ -3736,7 +3736,10 @@ async function loadFromGitHub() {
         recommData = data.recommData;
         try { localStorage.setItem(RECOMM_KEY, JSON.stringify(recommData)); } catch(e) {}
       }
-      GH.lastHash = JSON.stringify({tasks,permits,violations,recommData}); render();
+      GH.lastHash = JSON.stringify({tasks,permits,violations,recommData});
+      render();
+      // Always re-render recomm page so all users see the latest systems & bars
+      renderRecommPage();
     }
     updateSyncStatus('Synced · '+new Date().toLocaleTimeString(),'ok');
   } catch(e) { updateSyncStatus('Load error: '+e.message,'err'); console.error('GH load:',e); }
@@ -3774,11 +3777,20 @@ function startAutoRefresh() {
     if (GH.saveTimer) return;
     try {
       const data = await _ghRead(); if (!data) return;
-      const hash = JSON.stringify({tasks:data.tasks, permits:data.permits, violations:data.violations});
+      const hash = JSON.stringify({tasks:data.tasks, permits:data.permits, violations:data.violations, recommData:data.recommData});
       if (hash!==GH.lastHash) {
         tasks=data.tasks||tasks; permits=data.permits||permits;
         if (Array.isArray(data.violations)) violations=data.violations;
-        GH.lastHash=hash; render();
+        // Update recommData from GitHub
+        if (data.recommData && Array.isArray(data.recommData.rows)) {
+          data.recommData.rows.forEach(function(remote) {
+            const local = recommData.rows.find(function(r){ return r.id === remote.id; });
+            if (local && local.handoverDocData) remote.handoverDocData = local.handoverDocData;
+          });
+          recommData = data.recommData;
+          try { localStorage.setItem(RECOMM_KEY, JSON.stringify(recommData)); } catch(e) {}
+        }
+        GH.lastHash=hash; render(); renderRecommPage();
         updateSyncStatus('Updated · '+new Date().toLocaleTimeString(),'ok');
       }
     } catch(e) {}
@@ -5402,8 +5414,8 @@ function loadRecommData() {
 }
 function saveRecommData() {
   try { localStorage.setItem(RECOMM_KEY, JSON.stringify(recommData)); } catch(e) {}
-  // Also push recommData changes to GitHub if connected
-  scheduleAutoSave();
+  // Push to GitHub so all users see the latest recommissioning data
+  if (typeof scheduleAutoSave === 'function') scheduleAutoSave();
 }
 function uid() { return 'r' + Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
 
