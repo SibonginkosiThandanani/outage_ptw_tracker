@@ -3727,7 +3727,16 @@ async function loadFromGitHub() {
       if (Array.isArray(data.tasks))       tasks      = data.tasks;
       if (Array.isArray(data.permits))    permits    = data.permits;
       if (Array.isArray(data.violations)) violations = data.violations;
-      GH.lastHash = JSON.stringify({tasks,permits,violations}); render();
+      if (data.recommData && Array.isArray(data.recommData.rows)) {
+        // Merge: restore any locally-stored base64 doc data (not synced via GitHub)
+        data.recommData.rows.forEach(function(remote) {
+          const local = recommData.rows.find(function(r){ return r.id === remote.id; });
+          if (local && local.handoverDocData) remote.handoverDocData = local.handoverDocData;
+        });
+        recommData = data.recommData;
+        try { localStorage.setItem(RECOMM_KEY, JSON.stringify(recommData)); } catch(e) {}
+      }
+      GH.lastHash = JSON.stringify({tasks,permits,violations,recommData}); render();
     }
     updateSyncStatus('Synced · '+new Date().toLocaleTimeString(),'ok');
   } catch(e) { updateSyncStatus('Load error: '+e.message,'err'); console.error('GH load:',e); }
@@ -3736,7 +3745,13 @@ async function loadFromGitHub() {
 async function saveToGitHub() {
   if (!GH.enabled) { alert('GitHub sync not configured. Open ⚙ Settings.'); return; }
   GH.saveTimer = null;
-  const payload = JSON.stringify({version:7, savedAt:new Date().toISOString(), tasks, permits, violations});
+  // Strip large base64 handover doc data before syncing (docs stay local only)
+  const recommForSync = { rows: (recommData.rows||[]).map(function(r) {
+    const rc = Object.assign({}, r);
+    rc.handoverDocData = ''; // not synced (kept in localStorage only)
+    return rc;
+  })};
+  const payload = JSON.stringify({version:7, savedAt:new Date().toISOString(), tasks, permits, violations, recommData: recommForSync});
   try {
     updateSyncStatus('Saving…','busy');
     await _ghWrite(payload);
@@ -5387,6 +5402,8 @@ function loadRecommData() {
 }
 function saveRecommData() {
   try { localStorage.setItem(RECOMM_KEY, JSON.stringify(recommData)); } catch(e) {}
+  // Also push recommData changes to GitHub if connected
+  scheduleAutoSave();
 }
 function uid() { return 'r' + Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
 
