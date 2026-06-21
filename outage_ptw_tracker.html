@@ -1624,6 +1624,143 @@ function openHandoverDocModal(rowId) {
   document.getElementById('rhdoc-file').value = '';
   document.getElementById('recomm-hdoc-modal').style.display = 'flex';
 }
+
+
+// ── TIMELINE RANGE CONTROLS ──────────────────────────────
+function setRecommTlRange() {
+  var fv = document.getElementById('recomm-tl-from').value;
+  var tv = document.getElementById('recomm-tl-to').value;
+  _recommTlFrom = fv ? new Date(fv + 'T00:00:00') : null;
+  _recommTlTo   = tv ? new Date(tv + 'T23:59:59') : null;
+  if (_recommTlFrom && _recommTlTo && _recommTlFrom >= _recommTlTo) {
+    _recommTlTo = new Date(_recommTlFrom.getTime() + 7*86400000);
+    document.getElementById('recomm-tl-to').value = _recommTlTo.toISOString().slice(0,10);
+  }
+  renderRecommPage();
+}
+function resetRecommTlRange() {
+  _recommTlFrom = null; _recommTlTo = null;
+  document.getElementById('recomm-tl-from').value = '';
+  document.getElementById('recomm-tl-to').value = '';
+  renderRecommPage();
+}
+function shiftRecommTl(days) {
+  var fi = document.getElementById('recomm-tl-from');
+  var ti = document.getElementById('recomm-tl-to');
+  var f = _recommTlFrom || (fi.value ? new Date(fi.value+'T00:00:00') : null);
+  var t = _recommTlTo   || (ti.value ? new Date(ti.value+'T00:00:00') : null);
+  if (!f || !t) { resetRecommTlRange(); return; }
+  var ms = days * 86400000;
+  _recommTlFrom = new Date(f.getTime() + ms);
+  _recommTlTo   = new Date(t.getTime() + ms);
+  fi.value = _recommTlFrom.toISOString().slice(0,10);
+  ti.value = _recommTlTo.toISOString().slice(0,10);
+  renderRecommPage();
+}
+function zoomRecommTl(factor) {
+  var fi = document.getElementById('recomm-tl-from');
+  var ti = document.getElementById('recomm-tl-to');
+  var f = _recommTlFrom || (fi.value ? new Date(fi.value+'T00:00:00') : null);
+  var t = _recommTlTo   || (ti.value ? new Date(ti.value+'T00:00:00') : null);
+  if (!f || !t) { resetRecommTlRange(); return; }
+  var mid = (f.getTime() + t.getTime()) / 2;
+  var half = (t.getTime() - f.getTime()) / 2 * factor;
+  half = Math.max(12*3600000, half); // min 12h window
+  _recommTlFrom = new Date(mid - half);
+  _recommTlTo   = new Date(mid + half);
+  fi.value = _recommTlFrom.toISOString().slice(0,10);
+  ti.value = _recommTlTo.toISOString().slice(0,10);
+  renderRecommPage();
+}
+
+// ── SYSTEM FILTER ────────────────────────────────────────
+function openRecommSysFilter(e) {
+  const popup = document.getElementById('recomm-sys-filter-popup');
+  if (!popup) return;
+  // Populate list
+  const list = document.getElementById('recomm-sys-filter-list');
+  list.innerHTML = '';
+  recommData.rows.forEach(function(row) {
+    const sys = row.system || '(No system)';
+    const checked = _recommSysFilter.size === 0 || _recommSysFilter.has(sys);
+    const item = document.createElement('label');
+    item.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:600;color:#1e3a5f;border-bottom:1px solid rgba(200,215,230,0.3)';
+    item.onmouseenter = function(){ this.style.background='#f0f4ff'; };
+    item.onmouseleave = function(){ this.style.background=''; };
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = checked;
+    cb.style.cssText = 'width:14px;height:14px;cursor:pointer;accent-color:#1e3a5f';
+    cb.onchange = function(){ toggleRecommSysFilter(sys, this.checked); };
+    var txt = document.createElement('span');
+    txt.textContent = sys;
+    txt.style.overflow = 'hidden';
+    txt.style.textOverflow = 'ellipsis';
+    txt.style.whiteSpace = 'nowrap';
+    item.appendChild(cb);
+    item.appendChild(txt);
+    list.appendChild(item);
+  });
+  // Position below button
+  var btn = e ? e.currentTarget : document.getElementById('recomm-filter-btn');
+  var r = btn ? btn.getBoundingClientRect() : {left:200, bottom:60};
+  popup.style.display = 'flex';
+  popup.style.top = (r.bottom + 6) + 'px';
+  popup.style.left = Math.max(8, r.right - 280) + 'px';
+}
+function closeRecommSysFilter() {
+  var p = document.getElementById('recomm-sys-filter-popup');
+  if (p) p.style.display = 'none';
+}
+function toggleRecommSysFilter(sys, isChecked) {
+  // Rebuild filter from current checkboxes
+  var list = document.getElementById('recomm-sys-filter-list');
+  var cbs = list ? list.querySelectorAll('input[type=checkbox]') : [];
+  var labels = list ? list.querySelectorAll('label span') : [];
+  var newSet = new Set();
+  for (var i = 0; i < cbs.length; i++) {
+    if (cbs[i].checked) newSet.add(labels[i].textContent);
+  }
+  // If all checked, treat as "show all"
+  _recommSysFilter = newSet.size === recommData.rows.length ? new Set() : newSet;
+  updateRecommFilterBadge();
+  renderRecommPage();
+}
+function recommSysFilterSelectAll() {
+  _recommSysFilter = new Set();
+  updateRecommFilterBadge();
+  closeRecommSysFilter();
+  renderRecommPage();
+}
+function recommSysFilterClearAll() {
+  // Show only first row (fallback: clear to nothing shows nothing)
+  // Instead, keep one selected so we don't blank the chart
+  _recommSysFilter = new Set();
+  updateRecommFilterBadge();
+  closeRecommSysFilter();
+  renderRecommPage();
+}
+function updateRecommFilterBadge() {
+  var badge = document.getElementById('recomm-filter-badge');
+  if (!badge) return;
+  if (_recommSysFilter.size === 0) {
+    badge.style.display = 'none';
+  } else {
+    badge.textContent = _recommSysFilter.size;
+    badge.style.display = 'inline';
+  }
+}
+// Close filter popup when clicking outside
+document.addEventListener('click', function(e) {
+  var popup = document.getElementById('recomm-sys-filter-popup');
+  var btn = document.getElementById('recomm-filter-btn');
+  if (popup && popup.style.display !== 'none') {
+    if (!popup.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+      popup.style.display = 'none';
+    }
+  }
+});
+
 function closeRecommHdocModal() {
   document.getElementById('recomm-hdoc-modal').style.display = 'none';
 }
@@ -4890,7 +5027,7 @@ spInit();
 <div id="pg-recomm" class="pg" style="background:#eef1f6;flex-direction:column;overflow:hidden">
 
 <style>
-#recomm-header{background:linear-gradient(135deg,#1e3a5f 0%,#2d5186 100%);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#recomm-header{background:linear-gradient(135deg,#1e3a5f 0%,#2d5186 100%);padding:10px 18px;display:flex;flex-direction:column;gap:0;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 #recomm-header .rh-title{color:#fff;font-size:20px;font-weight:900;letter-spacing:1.5px}
 #recomm-header .rh-sub{color:rgba(255,255,255,.65);font-size:11px;letter-spacing:1px}
 .recomm-nav-btn{padding:5px 13px;border:1px solid rgba(255,255,255,.4);border-radius:14px;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
@@ -4994,16 +5131,31 @@ spInit();
 
 <!-- HEADER -->
 <div id="recomm-header">
-  <div style="flex:1">
-    <div class="rh-title">🔄 RECOMMISSIONING PLAN</div>
-    <div class="rh-sub">XINA SOLAR ONE · SYSTEM HANDOVER & COMMISSIONING</div>
-    <div id="recomm-overall-pct" style="margin-top:6px"></div>
-  </div>
-  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-    <button class="recomm-add-btn" onclick="openRecommAddMenu()">＋ Add</button>
-    <button class="recomm-nav-btn" onclick="navigateTo('action')">📋 Action Plan</button>
-    <button class="recomm-nav-btn" onclick="navigateTo('violations')">⚠️ PTW Analysis</button>
-    <button class="recomm-nav-btn" onclick="navigateTo('home')">🏠</button>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+    <!-- Left: title -->
+    <div>
+      <div class="rh-title">RECOMMISSIONING PLAN</div>
+      <div class="rh-sub">XINA SOLAR ONE · SYSTEM HANDOVER & COMMISSIONING</div>
+      <div id="recomm-overall-pct" style="margin-top:4px"></div>
+    </div>
+    <!-- Right: nav buttons + date picker stacked -->
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <button class="recomm-add-btn" onclick="openRecommAddMenu()">＋ Add</button>
+        <button id="recomm-filter-btn" onclick="openRecommSysFilter(event)" style="padding:5px 13px;border:1px solid rgba(255,255,255,.4);border-radius:14px;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🔍 Systems <span id="recomm-filter-badge" style="background:#f0b429;color:#1e3a5f;border-radius:8px;padding:0 5px;margin-left:4px;display:none"></span></button>
+        <button class="recomm-nav-btn" onclick="navigateTo('action')">📋 Action Plan</button>
+        <button class="recomm-nav-btn" onclick="navigateTo('violations')">⚠️ PTW Analysis</button>
+        <button class="recomm-nav-btn" onclick="navigateTo('home')">🏠</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end">
+        <input type="date" id="recomm-tl-from" onchange="setRecommTlRange()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:#fff;font-size:11px;padding:3px 7px;cursor:pointer;width:128px">
+        <span style="color:rgba(255,255,255,0.45);font-size:12px">–</span>
+        <input type="date" id="recomm-tl-to" onchange="setRecommTlRange()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:#fff;font-size:11px;padding:3px 7px;cursor:pointer;width:128px">
+        <button onclick="resetRecommTlRange()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);border-radius:8px;color:#fff;font-size:10px;font-weight:700;padding:3px 10px;cursor:pointer" title="Auto-fit to action dates">Auto</button>
+        <button onclick="zoomRecommTl(0.5)" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:6px;color:#fff;font-size:12px;font-weight:900;padding:3px 9px;cursor:pointer" title="Zoom in">＋</button>
+        <button onclick="zoomRecommTl(2)"   style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:6px;color:#fff;font-size:12px;font-weight:900;padding:3px 9px;cursor:pointer" title="Zoom out">－</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -5021,6 +5173,20 @@ spInit();
     <!-- Add system row bar -->
 
   </div>
+</div>
+
+
+<!-- ═══ SYSTEM FILTER POPUP ═══ -->
+<div id="recomm-sys-filter-popup" style="display:none;position:fixed;z-index:3100;background:#fff;border:1px solid #c5cde0;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.22);min-width:230px;max-width:280px;max-height:420px;overflow:hidden;flex-direction:column">
+  <div style="background:#1e3a5f;color:#fff;padding:9px 14px;font-size:12px;font-weight:800;letter-spacing:.5px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between">
+    <span>🔍 Filter Systems</span>
+    <button onclick="closeRecommSysFilter()" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;line-height:1;padding:0">✕</button>
+  </div>
+  <div style="padding:7px 12px;border-bottom:1px solid #e8edf5;display:flex;gap:6px">
+    <button onclick="recommSysFilterSelectAll()" style="flex:1;font-size:10px;font-weight:700;padding:3px 0;background:#e8f0fe;border:1px solid #4a90d9;border-radius:6px;color:#1e3a5f;cursor:pointer">☑ All</button>
+    <button onclick="recommSysFilterClearAll()" style="flex:1;font-size:10px;font-weight:700;padding:3px 0;background:#fdecea;border:1px solid #e57373;border-radius:6px;color:#c0392b;cursor:pointer">☐ Clear</button>
+  </div>
+  <div id="recomm-sys-filter-list" style="overflow-y:auto;flex:1;max-height:320px;padding:4px 0"></div>
 </div>
 
 <!-- ═══ ADD MENU POPUP ═══ -->
@@ -5207,6 +5373,9 @@ spInit();
 <script>
 // ── RECOMM DATA STORE ──
 let recommData = { rows: [] };
+let _recommSysFilter = new Set(); // empty = show all
+let _recommTlFrom = null; // custom timeline start (Date or null)
+let _recommTlTo   = null; // custom timeline end   (Date or null)
 const RECOMM_KEY = 'recomm_data_v1';
 
 function loadRecommData() {
@@ -5228,9 +5397,14 @@ function parseDate(s) { if (!s) return null; return /^\d{4}-\d{2}-\d{2}T\d{2}:\d
 function fmtDateShort(d) { if(!d) return ''; return d.toLocaleDateString('en-ZA',{month:'short',day:'numeric'}); }
 function fmtDateDay(d) { if(!d) return ''; return d.toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'}); }
 
-function getTimelineRange() {
+function getTimelineRange(rowsOverride) {
+  // If user has set a custom window, use it
+  if (_recommTlFrom && _recommTlTo) {
+    return { min: new Date(_recommTlFrom), max: new Date(_recommTlTo) };
+  }
   let min = null, max = null;
-  recommData.rows.forEach(function(row) {
+  const rows = rowsOverride || recommData.rows;
+  rows.forEach(function(row) {
     if (row.handoverDate) {
       const hd = parseDate(row.handoverDate);
       if (!min || hd < min) min = hd;
@@ -5633,29 +5807,47 @@ function renderRecommPage() {
   const rowsWrap = document.getElementById('recomm-rows-wrap');
   if (!tlHdr || !rowsWrap) return;
 
-  const range = getTimelineRange();
-  const { min, max } = range;
-
-  // Render timeline ruler (taller when showing hours)
-  tlHdr.style.position = 'relative';
-  const _showHrsRuler = (max - min) / 86400000 <= 14;
-  tlHdr.style.minHeight = _showHrsRuler ? '44px' : '28px';
-  tlHdr.innerHTML = renderTimelineRuler(min, max, tlHdr.offsetWidth || 600);
-
   if (!recommData.rows.length) {
     rowsWrap.innerHTML = '<div style="text-align:center;padding:32px;color:#888;font-size:14px">No systems added yet. Click <strong>+ Add</strong> or <strong>+ Add System Row</strong> to get started.</div>';
     return;
   }
 
+  // Apply system filter first (needed before getTimelineRange)
+  const _visibleRows = _recommSysFilter.size === 0
+    ? recommData.rows
+    : recommData.rows.filter(function(r){ return _recommSysFilter.has(r.system || '(No system)'); });
+
+  if (_visibleRows.length === 0) {
+    rowsWrap.innerHTML = '<div style="text-align:center;padding:32px;color:#888;font-size:14px">No systems match the current filter. Click <strong>🔍 Systems</strong> to adjust.</div>';
+    return;
+  }
+
+  // Now compute timeline range using visible rows + any custom window
+  const range = getTimelineRange(_visibleRows);
+  const { min, max } = range;
+  // Render timeline ruler
+  tlHdr.style.position = 'relative';
+  const _showHrsRuler = (max - min) / 86400000 <= 14;
+  tlHdr.style.minHeight = _showHrsRuler ? '44px' : '28px';
+  tlHdr.innerHTML = renderTimelineRuler(min, max, tlHdr.offsetWidth || 600);
+  // Sync date inputs with current range (only when auto)
+  if (!_recommTlFrom || !_recommTlTo) {
+    const fi = document.getElementById('recomm-tl-from');
+    const ti = document.getElementById('recomm-tl-to');
+    if (fi && !fi.value) fi.value = min.toISOString().slice(0,10);
+    if (ti && !ti.value) ti.value = max.toISOString().slice(0,10);
+  }
+
   // Pre-compute max action count for uniform lane heights
   let _maxActCount = 3;
-  recommData.rows.forEach(function(r) {
+  _visibleRows.forEach(function(r) {
     const n = (r.actions||[]).length;
     if (n > _maxActCount) _maxActCount = n;
   });
 
   let rowsHtml = '';
-  recommData.rows.forEach(function(row, ri) {
+
+  _visibleRows.forEach(function(row, ri) {
     const prog = getRowActionProgress(row);
     const ptw = countPermitsBySystem(row.system || '');
     const totalPTW = ptw.Open + ptw.Suspended + ptw.Closed;
