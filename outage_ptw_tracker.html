@@ -223,7 +223,7 @@ textarea{resize:vertical;min-height:52px}
 .gantt-chart-area{flex:1;overflow:auto;position:relative}
 
 /* ── ACTION PLAN NAV BAR ── */
-.action-nav-btn{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:11px;font-weight:700;transition:background .15s;text-decoration:none}
+.action-nav-btn{background:rgba(255,255,255,.15);color:#fff;white-space:nowrap;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:11px;font-weight:700;transition:background .15s;text-decoration:none}
 .action-nav-btn:hover{background:rgba(255,255,255,.28)}
 
 /* ── PIN MODAL ── */
@@ -292,16 +292,16 @@ textarea{resize:vertical;min-height:52px}
 .btn-log-violation:hover{background:#e53935}
 /* ── PERMIT ANALYSIS PAGE ── */
 #pg-violations{background:#f2f4f7;flex-direction:column}
-.violations-header{background:linear-gradient(135deg,#1e3a5f 0%,#2d5186 100%);color:#fff;padding:0 20px;height:62px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.violations-header{background:linear-gradient(135deg,#1e3a5f 0%,#2d5186 100%);color:#fff;padding:0 20px;min-height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3);gap:10px}
 .violations-body{flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:10px}
 .row-subhd { background:#e8edf8 !important; }
 .row-subhd td { border-top:1px solid #c5d0f0 !important; }
 .viol-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .viol-chart-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:16px 18px;overflow:hidden}
-.viol-chart-title{font-size:15px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:1px solid #eef0f3;padding-bottom:6px}
+.viol-chart-title{font-size:clamp(10px,1.1vw,15px);font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:1px solid #eef0f3;padding-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viol-svg-wrap{overflow-x:auto;overflow-y:hidden}
 .viol-table-card{background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:16px 18px}
-.viol-table-title{font-size:16px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:2px solid #eef0f3;padding-bottom:8px}
+.viol-table-title{font-size:clamp(10px,1.2vw,16px);font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;border-bottom:2px solid #eef0f3;padding-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .viol-list-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
 .viol-list-table th{background:#1e3a5f;color:#fff;padding:8px 7px;text-align:left;font-size:11px;font-weight:700;white-space:nowrap;position:sticky;top:0;z-index:1;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .viol-list-table td{padding:8px 7px;border-bottom:1px solid #eef0f3;vertical-align:middle;word-break:break-word;line-height:1.4;min-height:36px}
@@ -778,12 +778,12 @@ textarea{resize:vertical;min-height:52px}
 <div id="pg-violations" class="pg">
   <div class="violations-header">
     <div style="text-align:center;flex:1">
-      <div style="font-size:30px;font-weight:900;letter-spacing:2px;color:#fff">PERMIT TO WORK ANALYSIS</div>
-      <div style="font-size:15px;color:rgba(255,255,255,.65);letter-spacing:1px">VIOLATIONS · TRENDS · COMPLIANCE · CORRECTIVE ACTIONS</div>
+      <div style="font-size:clamp(13px,2vw,28px);font-weight:900;letter-spacing:clamp(0px,0.15vw,2px);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">PERMIT TO WORK ANALYSIS</div>
+      <div style="font-size:clamp(8px,1vw,13px);color:rgba(255,255,255,.65);letter-spacing:clamp(0px,0.05vw,1px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">VIOLATIONS · TRENDS · COMPLIANCE · CORRECTIVE ACTIONS</div>
     </div>
-    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-      <button onclick="openPermitListModal('all')" style="padding:5px 12px;border:1px solid rgba(255,255,255,.6);border-radius:14px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;cursor:pointer">📋 All Permits</button>
-      <button onclick="printAll()" style="padding:5px 12px;border:1px solid rgba(255,140,0,.8);border-radius:14px;background:rgba(180,60,0,.6);color:#fff;font-size:11px;font-weight:700;cursor:pointer" title="Export to PDF">🖨 PDF</button>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;flex-shrink:0">
+      <button onclick="openPermitListModal('all')" style="padding:5px 12px;border:1px solid rgba(255,255,255,.6);border-radius:14px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">📋 All Permits</button>
+      <button onclick="printAll()" style="padding:5px 12px;border:1px solid rgba(255,140,0,.8);border-radius:14px;background:rgba(180,60,0,.6);color:#fff;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap" title="Export to PDF">🖨 PDF</button>
       <button class="action-nav-btn" onclick="navigateTo('action')">📋 Action Plan</button>
       <button class="action-nav-btn" onclick="navigateTo('home')">🏠</button>
     </div>
@@ -806,7 +806,7 @@ textarea{resize:vertical;min-height:52px}
         <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px">
           <div id="permit-chart-title" class="viol-chart-title" style="margin:0;border:none;padding:0">Permits per Main Task</div>
           <div style="display:flex;gap:6px">
-            <button id="permit-toggle-btn" onclick="togglePermitChart()" style="padding:5px 10px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:12px;font-weight:700;cursor:pointer">📊 By Discipline</button>
+            <button id="permit-toggle-btn" onclick="togglePermitChart()" style="padding:5px 10px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📊 By Discipline</button>
             <button onclick="expandPermitChart()" style="padding:5px 10px;border:1px solid #2d5186;border-radius:12px;background:#edf2ff;color:#1e3a5f;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap" title="Expand full view">⛶</button>
           </div>
         </div>
@@ -4357,7 +4357,7 @@ function renderViolPermitStats() {
   const tile = (count, label, color, bgColor, pctVal) =>
     `<div style="background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:12px 10px;text-align:center;border-top:3px solid ${color}">
       <div style="font-size:28px;font-weight:900;color:${color}">${count}</div>
-      <div style="font-size:13px;text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px">${label}</div>
+      <div style="font-size:clamp(9px,1vw,13px);text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</div>
       <div style="background:${bgColor};border-radius:12px;padding:2px 8px;display:inline-block">
         <span style="font-size:13px;font-weight:800;color:${color}">${pctVal}%</span>
         <span style="font-size:12px;color:#888;margin-left:2px">of total</span>
@@ -4366,7 +4366,7 @@ function renderViolPermitStats() {
   const tileTotal = (count, label, color) =>
     `<div style="background:#fff;border-radius:8px;box-shadow:0 1px 5px rgba(0,0,0,.1);padding:12px 10px;text-align:center;border-top:3px solid ${color}">
       <div style="font-size:28px;font-weight:900;color:${color}">${count}</div>
-      <div style="font-size:13px;text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px">${label}</div>
+      <div style="font-size:clamp(9px,1vw,13px);text-transform:uppercase;color:#666;letter-spacing:.5px;margin:3px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${label}</div>
     </div>`;
   renderPermitDonut();
 }
@@ -5066,7 +5066,7 @@ spInit();
 
 /* Swimlane table */
 .recomm-lane-wrap{min-width:1100px}
-.recomm-lane-hdr{display:grid;grid-template-columns:170px 220px 1fr;background:#1e3a5f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.5px;border-radius:8px 8px 0 0;overflow:hidden}
+.recomm-lane-hdr{display:grid;grid-template-columns:170px 220px 1fr;background:#1e3a5f;color:#fff;font-size:11px;font-weight:700;letter-spacing:.5px;border-radius:8px 8px 0 0;overflow:hidden;position:sticky;top:0;z-index:20}
 .recomm-lane-hdr > div{padding:8px 10px;border-right:1px solid rgba(255,255,255,.15)}
 .recomm-lane-hdr > div:last-child{border-right:none}
 
